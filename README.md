@@ -119,12 +119,16 @@ When using Cursor's AI agent to make commits, you may encounter permission issue
 
 ### Step 1: Clone and Install
 
-Open Cursor in the folder where you want to create your project, then run:
+**Fresh clone:** Open Cursor in the folder where you want to create your project, then run:
 
 ```bash
 git clone https://github.com/TMI-apps/boilerplate-vite-supabase-mui-cursor .
 pnpm install
 ```
+
+**Existing project:** If you already have the project, run `pnpm install` in the project root.
+
+**Note:** On Windows PowerShell, use `;` instead of `&&` when chaining commands (e.g. `cd my-project; pnpm install`).
 
 **Note:** You may see TypeScript compilation errors during installation. These are normal and won't prevent the app from running. Vite transpiles TypeScript on the fly for the dev server.
 
@@ -134,11 +138,11 @@ pnpm install
 pnpm dev
 ```
 
-The app will open at `http://localhost:5173/` (or another port if 5173 is in use) and automatically redirect you to the setup wizard.
+The app will open at `http://localhost:5173/` (or another port if 5173 is in use). Click **Setup** in the top bar or navigate to `/setup` to access the setup wizard.
 
 ### Step 3: Complete the Setup Wizard
 
-When you first run the app, a setup wizard will guide you through configuration. All sections are optional - configure what you need and skip the rest.
+The setup wizard guides you through configuration. All sections are optional - configure what you need and skip the rest.
 
 #### Configure Supabase (Authentication) 🔐
 

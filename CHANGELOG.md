@@ -10,9 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Debug Pattern Refinement**: Updated Git env.exe error pattern in debug.md with confirmed root cause (Cursor sandbox restricting pipe creation) and correct debug approach
+- **README Setup Accuracy**: Fixed setup wizard redirect claim (app does not auto-redirect; user navigates to /setup). Added note for existing projects and PowerShell command chaining (`;` vs `&&`)
 
 ### Added
 
+- **/start Command**: Added `.cursor/commands/start.md` to run project setup steps in order (install, git config, format, lint, dev)
 - **Setup Documentation**: Enhanced README.md with comprehensive setup instructions
   - Expanded "Configure Line Endings" section with VS Code/Cursor editor configuration and Git configuration
   - Added "Linter Setup" section with verification steps, common commands, and editor integration guidance
