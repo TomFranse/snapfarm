@@ -4,7 +4,7 @@
  * Gets staged .ts/.tsx files from git and passes them to dependency-cruiser
  */
 
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
 
 try {
   // Get staged TypeScript files (Added, Copied, Modified, Renamed)

@@ -7,14 +7,14 @@
  *
  * @relatedFiles
  * When updating this file, also check:
- * - scripts/project-structure-validator.js - Validator that reads this config
+ * - scripts/project-structure-validator.cjs - Validator that reads this config
  * - package.json - Scripts that run validation (validate:structure)
  * - documentation/PROJECT-STRUCTURE-VALIDATION.md - User documentation
  * - architecture.md - Architecture documentation
  * - .cursor/rules/file-placement/RULE.md - File placement rules
  * - .cursor/rules/architecture/RULE.md - Architecture rules
  */
-/** @type {import('./scripts/project-structure-validator').ProjectStructureConfig} */
+/** @type {import('./scripts/project-structure-validator.cjs').ProjectStructureConfig} */
 module.exports = {
   structure: [
     // Root level: src folder
@@ -554,8 +554,11 @@ module.exports = {
       name: "scripts",
       children: [
         { name: "*.js" },
+        { name: "*.cjs" }, // CommonJS scripts (for require() with "type": "module")
         { name: "*.json" },
         { name: "*.ps1" }, // PowerShell scripts
+        { name: "README.md" },
+        { name: "migration-sql", children: [{ name: "*" }] }, // SQL migration scripts
       ],
     },
     // Migrations
@@ -641,7 +644,6 @@ module.exports = {
     { name: ".eslintrc.json" },
     { name: "cors.json" },
     { name: "database.rules.json" },
-    { name: "firebase.json" },
     { name: "package.json" },
     { name: "projectStructure.cache.json" },
     { name: "saml-attribute-mapping.json" },
@@ -683,7 +685,6 @@ module.exports = {
     { name: ".gitattributes" },
     { name: ".eslintignore" },
     { name: ".editorconfig" },
-    { name: ".firebaserc" },
     { name: "index.html" },
     // Environment files (specific only, no wildcard - pure whitelist)
     { name: ".env" },

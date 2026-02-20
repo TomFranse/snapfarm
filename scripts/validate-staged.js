@@ -4,8 +4,11 @@
  * Gets staged files from git and passes them to project-structure-validator.js
  */
 
-const { execSync } = require('child_process');
-const path = require('path');
+import { execSync } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 try {
   // Get staged files (Added, Copied, Modified, Renamed)
@@ -23,7 +26,7 @@ try {
   }
 
   // Pass files to validator
-  const validatorPath = path.join(__dirname, 'project-structure-validator.js');
+  const validatorPath = path.join(__dirname, 'project-structure-validator.cjs');
   const filesArg = stagedFiles.join(',');
   
   execSync(`node "${validatorPath}" --files=${filesArg}`, {

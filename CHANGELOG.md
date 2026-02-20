@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-02-20
+
+### Added
+
+- **Score popup color gradient**: Score feedback now uses theme-based colors by value
+  - 0 = theme red, 45 = orange/brown, 70 = yellow with glow
+  - Color interpolates smoothly between anchor points
+  - Added palette.score (low, mid, high) to theme for customization
+  - Glow effect on perfect (70) score
+
+### Fixed
+
+- **Pre-commit validation scripts**: Fixed ES module compatibility for staged validation
+  - Renamed project-structure-validator.js to .cjs for CommonJS execution
+  - Converted validate-staged.js and arch-check-staged.js to ESM (import/export)
+  - Pre-commit hook now runs successfully with package "type": "module"
+  - Added scripts/*.cjs and scripts/migration-sql to project structure config
+
 ## [0.10.2] - 2026-02-20
 
 ### Fixed

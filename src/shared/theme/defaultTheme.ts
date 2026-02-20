@@ -42,6 +42,11 @@ const COLORS = {
     pipSize: 10,
     pipGap: 0.7,
   },
+  score: {
+    low: "#BA1A1A", // theme red (0)
+    mid: "#B5754A", // orange/brown (45)
+    high: "#E8B923", // yellow (70)
+  },
 } as const;
 
 export const defaultThemeOptions: ThemeOptions = {
@@ -73,6 +78,11 @@ export const defaultThemeOptions: ThemeOptions = {
       pipEmpty: COLORS.game.pipEmpty,
       pipSize: COLORS.game.pipSize,
       pipGap: COLORS.game.pipGap,
+    },
+    score: {
+      low: COLORS.score.low,
+      mid: COLORS.score.mid,
+      high: COLORS.score.high,
     },
   },
   typography: {
@@ -294,6 +304,11 @@ declare module "@mui/material/styles" {
       pipSize: number;
       pipGap: number;
     };
+    score: {
+      low: string;
+      mid: string;
+      high: string;
+    };
   }
   interface PaletteOptions {
     game?: {
@@ -301,6 +316,11 @@ declare module "@mui/material/styles" {
       pipEmpty?: string;
       pipSize?: number;
       pipGap?: number;
+    };
+    score?: {
+      low?: string;
+      mid?: string;
+      high?: string;
     };
   }
 }
