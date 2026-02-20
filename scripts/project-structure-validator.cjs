@@ -39,8 +39,6 @@ const DEFAULT_IGNORE_PATTERNS = [
   'build',
   '.git/**',
   '.git',
-  '.firebase/**',
-  '.firebase',
   '.next/**',
   '.next',
   '.cache/**',

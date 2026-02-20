@@ -77,11 +77,6 @@ const HOSTING_PROVIDERS: HostingProvider[] = [
     description: "Configure environment variables in Cloudflare dashboard",
   },
   {
-    name: "Firebase Hosting",
-    url: "https://firebase.google.com/docs/hosting/environment-variables",
-    description: "Configure environment variables for Firebase Hosting",
-  },
-  {
     name: "GitHub Pages",
     url: "https://docs.github.com/en/actions/security-guides/encrypted-secrets",
     description: "Configure secrets in GitHub Actions",

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-02-20
+
+### Removed
+
+- **Firebase Hosting from setup**: Removed Firebase Hosting from hosting provider options in setup wizard
+  - HostingSection now lists only Vercel, Netlify, Cloudflare Pages, GitHub Pages, AWS Amplify, Azure Static Web Apps
+  - Completes Firebase/Firestore removal from boilerplate (Supabase-only)
+
 ## [0.11.0] - 2026-02-20
 
 ### Added
