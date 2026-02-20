@@ -1,10 +1,11 @@
 /**
- * CardSlot - Single slot (empty or occupied), drop target
+ * CardSlot - Single slot (empty or occupied), droppable via dnd-kit
  *
  * When occupied, the card covers the slot like two cards stacked.
  */
 
 import { Box } from "@mui/material";
+import { useDroppable } from "@dnd-kit/core";
 import type { Slot } from "@features/card-game/types/cardGame.types";
 import { VariablePips } from "@features/card-game/components/VariablePips/VariablePips";
 import { GameCard } from "@features/card-game/components/GameCard/GameCard";
@@ -14,11 +15,7 @@ import { Card } from "@/components/common/Card";
 export interface CardSlotProps {
   slot: Slot;
   slotIndex: number;
-  isDropTarget?: boolean;
   scorePopup?: { score: number; slotIndex: number } | null;
-  onDragOver?: (e: React.DragEvent, slotIndex: number) => void;
-  onDragLeave?: () => void;
-  onDrop?: (e: React.DragEvent, slotIndex: number) => void;
   onClick?: (slotIndex: number) => void;
 }
 
@@ -53,26 +50,15 @@ function renderSlotContent(slot: Slot) {
   );
 }
 
-export function CardSlot({
-  slot,
-  slotIndex,
-  isDropTarget = false,
-  scorePopup,
-  onDragOver,
-  onDragLeave,
-  onDrop,
-  onClick,
-}: CardSlotProps) {
+export function CardSlot({ slot, slotIndex, scorePopup, onClick }: CardSlotProps) {
   const isEmpty = slot.card === null;
   const showScorePopup = scorePopup?.slotIndex === slotIndex;
 
-  const handleDragOver = (e: React.DragEvent) => {
-    if (onDragOver && isEmpty) onDragOver(e, slotIndex);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    if (onDrop && isEmpty) onDrop(e, slotIndex);
-  };
+  const { isOver, setNodeRef } = useDroppable({
+    id: `slot-${slotIndex}`,
+    disabled: !isEmpty,
+  });
+  const isDropTarget = isOver && isEmpty;
 
   const handleClick = () => {
     if (onClick) onClick(slotIndex);
@@ -80,12 +66,10 @@ export function CardSlot({
 
   return (
     <Card
+      ref={setNodeRef}
       variant="slot"
       isDropTarget={isDropTarget}
       isEmpty={isEmpty}
-      onDragOver={handleDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={handleDrop}
       onClick={handleClick}
     >
       {renderSlotContent(slot)}

@@ -10,22 +10,10 @@ import type { ScorePopupState } from "@features/card-game/types/cardGame.types";
 export interface GameBoardProps {
   board: Slot[];
   scorePopup: ScorePopupState | null;
-  dropTargetSlotIndex: number | null;
-  onSlotDragOver: (e: React.DragEvent, slotIndex: number) => void;
-  onSlotDragLeave: () => void;
-  onSlotDrop: (e: React.DragEvent, slotIndex: number) => void;
   onSlotClick: (slotIndex: number) => void;
 }
 
-export function GameBoard({
-  board,
-  scorePopup,
-  dropTargetSlotIndex,
-  onSlotDragOver,
-  onSlotDragLeave,
-  onSlotDrop,
-  onSlotClick,
-}: GameBoardProps) {
+export function GameBoard({ board, scorePopup, onSlotClick }: GameBoardProps) {
   return (
     <Box>
       <Box
@@ -41,11 +29,7 @@ export function GameBoard({
             key={slot.id}
             slot={slot}
             slotIndex={index}
-            isDropTarget={dropTargetSlotIndex === index}
             scorePopup={scorePopup}
-            onDragOver={onSlotDragOver}
-            onDragLeave={onSlotDragLeave}
-            onDrop={onSlotDrop}
             onClick={onSlotClick}
           />
         ))}

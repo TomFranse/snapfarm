@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-02-20
+
+### Changed
+
+- **DnD: Leverage dnd-kit standard APIs** – Drop target highlighting uses `useDroppable`'s `isOver` in CardSlot instead of custom context parsing
+  - CardSlot derives `isDropTarget` from `isOver && isEmpty` (dnd-kit standard)
+  - Removed `dropTargetSlotIndex` from useCardInteraction, GameBoard, and HomePage
+  - Added `touch-action: none` to draggable GameCards for better touch device behavior
+  - Reduced custom code; more reliance on dnd-kit built-in behavior
+
+### Technical
+
+- CardSlot: `useDroppable` now returns `isOver`; drop target computed locally
+- useCardInteraction: removed useDndContext, useGameContext, parseSlotIndex; dropTargetSlotIndex removed
+- GameBoard: removed dropTargetSlotIndex prop
+- GameCard: added touchAction for touch devices
+
 ## [0.10.0] - 2026-02-20
 
 ### Changed
