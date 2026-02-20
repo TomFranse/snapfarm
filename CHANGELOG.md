@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-02-20
+
+### Added
+
+- **Placement rank bonus**: Bonus points for finding best placements among available options
+  - Pre-calculates all possible (card, slot) scores for hand and empty slots
+  - Ranks placements 1st/2nd/3rd with tie-sharing (ties share rank; next distinct score skips to 3rd)
+  - Bonus: +15 (1st), +8 (2nd), +3 (3rd)
+  - Score popup shows combined total with rank label ("Best!", "2nd best!", "3rd best!")
+
 ## [0.12.0] - 2026-02-20
 
 ### Added

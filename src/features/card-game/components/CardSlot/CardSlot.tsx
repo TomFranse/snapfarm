@@ -6,7 +6,7 @@
 
 import { Box } from "@mui/material";
 import { useDroppable } from "@dnd-kit/core";
-import type { Slot } from "@features/card-game/types/cardGame.types";
+import type { Slot, ScorePopupState } from "@features/card-game/types/cardGame.types";
 import { VariablePips } from "@features/card-game/components/VariablePips/VariablePips";
 import { GameCard } from "@features/card-game/components/GameCard/GameCard";
 import { ScorePopup } from "@features/card-game/components/ScorePopup/ScorePopup";
@@ -15,7 +15,7 @@ import { Card } from "@/components/common/Card";
 export interface CardSlotProps {
   slot: Slot;
   slotIndex: number;
-  scorePopup?: { score: number; slotIndex: number } | null;
+  scorePopup?: ScorePopupState | null;
   onClick?: (slotIndex: number) => void;
 }
 
@@ -75,7 +75,9 @@ export function CardSlot({ slot, slotIndex, scorePopup, onClick }: CardSlotProps
       >
         {renderSlotContent(slot)}
       </Card>
-      {showScorePopup && scorePopup && <ScorePopup score={scorePopup.score} />}
+      {showScorePopup && scorePopup && (
+        <ScorePopup score={scorePopup.score} bonus={scorePopup.bonus} rank={scorePopup.rank} />
+      )}
     </Box>
   );
 }

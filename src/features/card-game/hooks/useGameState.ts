@@ -12,6 +12,9 @@ import {
   generateCard,
   calculateScore,
   resetAdjacentEmptySlots,
+  getAllPlacementScores,
+  assignRanksWithTies,
+  getBonusForRank,
 } from "@features/card-game/services/gameLogic";
 
 const SCORE_POPUP_DURATION_MS = 1500;
@@ -37,9 +40,13 @@ export function useGameState() {
       if (!card || !slot || slot.card !== null) return false;
 
       const score = calculateScore(card.variables, slot.variables);
+      const placements = getAllPlacementScores(hand, board);
+      const ranks = assignRanksWithTies(placements);
+      const rank = ranks.get(`${cardId}-${slotIndex}`);
+      const bonus = getBonusForRank(rank);
 
-      setTotalScore((s) => s + score);
-      setScorePopup({ score, slotIndex });
+      setTotalScore((s) => s + score + bonus);
+      setScorePopup({ score, slotIndex, bonus, rank });
       setHand((prevHand) => {
         const filtered = prevHand.filter((c) => c.id !== cardId);
         return [...filtered, generateCard()];

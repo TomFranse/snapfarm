@@ -29,4 +29,6 @@ export interface GameState {
 export interface ScorePopupState {
   score: number;
   slotIndex: number;
+  bonus?: number;
+  rank?: 1 | 2 | 3;
 }
