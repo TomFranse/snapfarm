@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-02-20
+
+### Changed
+
+- **Bottom Navbar**: Replaced top bar with bottom navigation
+  - Topbar removed; new BottomNav fixed at bottom (MUI mobile-first pattern)
+  - Score displayed in bottom nav; removed from GameBoard
+  - Removed app title ("Vite MUI Supabase Starter"), Setup button, and Sign in button (hidden via HIDE_SIGN_IN)
+  - GameProvider context lifts game state for BottomNav and HomePage
+  - Content padding switched from top to bottom
+
+### Technical
+
+- Created `src/features/card-game/context/GameProvider.tsx` for app-level game state
+- Created `src/components/common/BottomNav.tsx`
+- Deleted `src/components/common/Topbar.tsx`
+
 ## [0.9.0] - 2026-02-20
 
 ### Changed

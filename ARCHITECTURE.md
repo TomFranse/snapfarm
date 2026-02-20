@@ -10,11 +10,11 @@ src/
 ├── components/          # App-level components
 │   └── common/          # Reusable UI components (pure components)
 │       ├── Button/
+│       ├── BottomNav.tsx
 │       ├── Card/
 │       ├── Input/
 │       ├── Modal/
 │       ├── ProfileMenu/
-│       └── Topbar.tsx
 ├── config/              # Configuration files (Entreefederatie, etc.)
 ├── features/            # Feature modules (business logic)
 │   ├── auth/
@@ -24,6 +24,7 @@ src/
 │   │   └── types/       # TypeScript types for feature
 │   ├── card-game/
 │   │   ├── components/  # Game board, cards, slots, hand, pips
+│   │   ├── context/     # GameProvider (app-level game state for score in BottomNav)
 │   │   ├── hooks/       # Game state, card interaction
 │   │   ├── services/    # Game logic (generate, score, adjacency)
 │   │   └── types/       # Card game types
@@ -63,7 +64,7 @@ Pages → Components → Hooks → Services → Shared Services
 4. **Services** can import from: Shared services, Types
 5. **Common components** cannot import from features
 6. **Components** cannot import from services directly (use hooks)
-7. **Topbar** is a root-level component that is always visible (rendered in App.tsx)
+7. **BottomNav** is a root-level component fixed at bottom (rendered in App.tsx); score display and optional nav items
 
 ### Import Patterns
 
