@@ -14,6 +14,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Square format, rules of thirds, fixed margins (25% L/R, 5% top/bottom)
   - Fixed background with dirt patch at bottom, master and short prompt variants
 
+## [0.14.0] - 2026-02-20
+
+### Added
+
+- **Global limits settings**: Editable min/max values for T, L, F, P, M, A at top of Plants page
+  - Defaults in app code; user overrides persisted in localStorage
+  - Accordion section with reset-to-defaults
+  - useGlobalLimits hook, GlobalSettingsSection component
+- **Plant environment pips**: Visual display of 6 env variables on plant detail page
+  - Icons and semantic colors (temperature, light, fertility, porosity, moisture, acidity)
+  - 5 pips per variable, fill based on plant opt between global min/max (0–10 scale)
+  - Same visual style as card game VariablePips
+
+### Removed
+
+- **Plant images debug logs**: Removed temporary console.log from plantImagesService
+
 ## [0.13.0] - 2026-02-20
 
 ### Added

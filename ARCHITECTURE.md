@@ -29,9 +29,10 @@ src/
 │   │   ├── services/    # Game logic (generate, score, adjacency)
 │   │   └── types/       # Card game types
 │   ├── plants/
-│   │   ├── hooks/       # usePlantImages
-│   │   ├── services/    # plantImagesService (Supabase Storage + plant_images)
-│   │   └── types/       # PlantImage, PlantImageWithUrl
+│   │   ├── components/  # GlobalSettingsSection, PlantEnvPips, PlantDetailContent
+│   │   ├── hooks/       # usePlantImages, useGlobalLimits, usePlantDetail, usePlants
+│   │   ├── services/   # plantImagesService, plantsService
+│   │   └── types/       # Plant, PlantImage, GlobalLimits, globalLimitsDefaults
 │   ├── setup/
 │   │   ├── components/  # Setup wizard UI components
 │   │   │   └── sections/ # Setup section components

@@ -16,6 +16,12 @@ export const ensurePlantImagesBucket = async (): Promise<void> => {
     fileSizeLimit: 2 * 1024 * 1024, // 2MB
   });
   if (error && error.message !== "The resource already exists") {
+    console.error("[plantImages] createBucket failed", {
+      bucket: PLANT_IMAGES_BUCKET,
+      errorMessage: error.message,
+      errorName: error.name,
+      errorDetails: (error as { details?: string })?.details,
+    });
     throw error;
   }
 };
@@ -63,7 +69,16 @@ export const uploadPlantImage = async (params: UploadPlantImageParams): Promise<
     .from(PLANT_IMAGES_BUCKET)
     .upload(storagePath, file, { upsert: true, contentType: file.type });
 
-  if (uploadError) throw uploadError;
+  if (uploadError) {
+    console.error("[plantImages] storage upload failed", {
+      storagePath,
+      plantId,
+      tag,
+      errorMessage: uploadError.message,
+      errorName: uploadError.name,
+    });
+    throw uploadError;
+  }
 
   const { data, error } = await supabase
     .from("plant_images")
@@ -79,7 +94,15 @@ export const uploadPlantImage = async (params: UploadPlantImageParams): Promise<
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error("[plantImages] plant_images upsert failed", {
+      plantId,
+      tag,
+      errorMessage: error.message,
+      errorCode: error.code,
+    });
+    throw error;
+  }
   return data as PlantImage;
 };
 
