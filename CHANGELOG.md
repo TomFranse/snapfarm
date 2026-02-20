@@ -7,8 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-02-20
+
 ### Changed
 
+- **Unified Card Component**: Single common Card for all card-like UI (slots, hand cards, board cards, setup cards)
+  - Fixed dimensions (120×168, Pokemon card aspect ratio); card and slot same size
+  - Card covers slot when placed (stacked overlay)
+  - All colors in theme only (palette.game.variableColors, pipEmpty, pipSize, pipGap)
+  - CSS Grid for consistent pip positioning across hand, board, and empty slots
+  - Pips centered, bottom-aligned; removed outlines
+- **GrowFarm Theme**: Applied GrowFarm color palette and Montaga font from theme-inspiration
+  - Replaced purple/pink palette with green/sage palette (primary #A4D397, secondary #BBCCB2)
+  - Updated background (#11140F), text (#E1E4DA/#C2C8BC), gradient, error, divider colors
+  - Game variable colors now use extended palette (Earth, Water, Plant, Grain, Grape, Tertiary)
+  - Switched font from Montserrat to Montaga; updated index.html Google Fonts link
+  - Heading weights changed from 700 to 400 to match GrowFarm theme
 - **Debug Pattern Refinement**: Updated Git env.exe error pattern in debug.md with confirmed root cause (Cursor sandbox restricting pipe creation) and correct debug approach
 - **README Setup Accuracy**: Fixed setup wizard redirect claim (app does not auto-redirect; user navigates to /setup). Added note for existing projects and PowerShell command chaining (`;` vs `&&`)
 

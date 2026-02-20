@@ -2,9 +2,10 @@
  * GameCard - Card with pip visualization and duration badge, draggable
  */
 
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import type { GameCard as GameCardType } from "@features/card-game/types/cardGame.types";
 import { VariablePips } from "@features/card-game/components/VariablePips/VariablePips";
+import { Card } from "@/components/common/Card";
 
 export interface GameCardProps {
   card: GameCardType;
@@ -14,52 +15,6 @@ export interface GameCardProps {
   onDragEnd?: () => void;
   onClick?: (cardId: string) => void;
   onBoard?: boolean;
-}
-
-function CardPaper({
-  isDraggable,
-  selected,
-  children,
-  onDragStart,
-  onDragEnd,
-  onClick,
-}: {
-  isDraggable: boolean;
-  selected: boolean;
-  children: React.ReactNode;
-  onDragStart?: (e: React.DragEvent) => void;
-  onDragEnd?: () => void;
-  onClick?: () => void;
-}) {
-  const cursor = isDraggable ? "grab" : "default";
-  const border = selected ? 2 : 1;
-  const borderColor = selected ? "primary.main" : "divider";
-  const elevation = selected ? 8 : 2;
-
-  return (
-    <Paper
-      draggable={isDraggable}
-      onDragStart={onDragStart}
-      onDragEnd={onDragEnd}
-      onClick={onClick}
-      elevation={elevation}
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        p: 1.5,
-        minWidth: 100,
-        minHeight: 80,
-        cursor,
-        border,
-        borderColor,
-        borderRadius: 2,
-        position: "relative",
-        ...(isDraggable && { "&:active": { cursor: "grabbing" } }),
-      }}
-    >
-      {children}
-    </Paper>
-  );
 }
 
 export function GameCard({
@@ -72,8 +27,6 @@ export function GameCard({
   onBoard = false,
 }: GameCardProps) {
   const isDraggable = draggable && !onBoard;
-  const pipSize = onBoard ? "small" : "medium";
-  const topMargin = onBoard ? 0 : 2;
 
   const handleDragStart = (e: React.DragEvent) => {
     if (isDraggable && onDragStart) onDragStart(e, card.id);
@@ -84,9 +37,10 @@ export function GameCard({
   };
 
   return (
-    <CardPaper
-      isDraggable={isDraggable}
+    <Card
+      variant="game-card"
       selected={selected}
+      draggable={isDraggable}
       onDragStart={handleDragStart}
       onDragEnd={onDragEnd}
       onClick={handleClick}
@@ -103,9 +57,16 @@ export function GameCard({
       >
         {card.duration}
       </Typography>
-      <Box sx={{ mt: topMargin }}>
-        <VariablePips variables={card.variables} size={pipSize} />
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-end",
+        }}
+      >
+        <VariablePips variables={card.variables} />
       </Box>
-    </CardPaper>
+    </Card>
   );
 }

@@ -17,21 +17,30 @@
 
 import { createTheme, ThemeOptions, Theme, alpha } from "@mui/material/styles";
 
-// Color constants - define once, reference everywhere
+// Color constants - GrowFarm theme (dark scheme from material-theme-growfarm.json)
 const COLORS = {
-  primary: "#CF13B3",
-  secondary: "#E6196B",
+  primary: "#A4D397",
+  onPrimary: "#0F380C",
+  secondary: "#BBCCB2",
   background: {
-    default: "#070614",
-    paper: "#1C1B29",
+    default: "#11140F",
+    paper: "#191D17",
   },
   text: {
-    primary: "#ffffff",
-    secondary: "#F5F5F7",
+    primary: "#E1E4DA",
+    secondary: "#C2C8BC",
   },
   gradient: {
-    start: "#8D0BD1",
-    end: "#CF13B3",
+    start: "#275021",
+    end: "#A4D397",
+  },
+  error: "#FFB4AB",
+  divider: "#42493F",
+  game: {
+    variableColors: ["#B5754A", "#4A8AB5", "#54B54A", "#E8B923", "#AB4AB5", "#A0CFD2", "#BA1A1A"],
+    pipEmpty: "rgba(194, 200, 188, 0.15)",
+    pipSize: 10,
+    pipGap: 0.7,
   },
 } as const;
 
@@ -40,11 +49,15 @@ export const defaultThemeOptions: ThemeOptions = {
     mode: "dark",
     primary: {
       main: COLORS.primary,
+      contrastText: COLORS.onPrimary,
     },
     secondary: {
       main: COLORS.secondary,
-      light: "rgba(230, 25, 107, 0.2)",
-      dark: "#C0145A",
+      light: "rgba(214, 232, 205, 0.2)",
+      dark: "#3C4B37",
+    },
+    error: {
+      main: COLORS.error,
     },
     background: {
       default: COLORS.background.default,
@@ -54,35 +67,42 @@ export const defaultThemeOptions: ThemeOptions = {
       primary: COLORS.text.primary,
       secondary: COLORS.text.secondary,
     },
+    divider: COLORS.divider,
+    game: {
+      variableColors: [...COLORS.game.variableColors],
+      pipEmpty: COLORS.game.pipEmpty,
+      pipSize: COLORS.game.pipSize,
+      pipGap: COLORS.game.pipGap,
+    },
   },
   typography: {
-    fontFamily: "Montserrat, sans-serif",
+    fontFamily: "Montaga, Helvetica, Arial, sans-serif",
     h1: {
-      fontFamily: "Montserrat, sans-serif",
-      fontWeight: 700,
+      fontFamily: "Montaga, Helvetica, Arial, sans-serif",
+      fontWeight: 400,
     },
     h2: {
-      fontFamily: "Montserrat, sans-serif",
-      fontWeight: 700,
+      fontFamily: "Montaga, Helvetica, Arial, sans-serif",
+      fontWeight: 400,
     },
     h3: {
-      fontFamily: "Montserrat, sans-serif",
-      fontWeight: 700,
+      fontFamily: "Montaga, Helvetica, Arial, sans-serif",
+      fontWeight: 400,
     },
     h4: {
-      fontFamily: "Montserrat, sans-serif",
-      fontWeight: 700,
+      fontFamily: "Montaga, Helvetica, Arial, sans-serif",
+      fontWeight: 400,
     },
     h5: {
-      fontFamily: "Montserrat, sans-serif",
-      fontWeight: 700,
+      fontFamily: "Montaga, Helvetica, Arial, sans-serif",
+      fontWeight: 400,
     },
     h6: {
-      fontFamily: "Montserrat, sans-serif",
-      fontWeight: 700,
+      fontFamily: "Montaga, Helvetica, Arial, sans-serif",
+      fontWeight: 400,
     },
     // Use MUI's built-in body2 variant for code text (0.875rem)
-    // Keep Montserrat for consistency across the app
+    // Keep Montaga for consistency across the app
     body2: {
       fontSize: "0.875rem",
     },
@@ -146,7 +166,7 @@ export const defaultThemeOptions: ThemeOptions = {
           backgroundPosition: "0% 50%",
           border: 0,
           boxShadow: "0 3px 5px 2px rgba(0, 0, 0, 0.4)",
-          color: COLORS.text.primary,
+          color: COLORS.onPrimary,
           transition: "background-position 0.6s ease",
           "&:hover": {
             backgroundPosition: "100% 50%",
@@ -159,7 +179,7 @@ export const defaultThemeOptions: ThemeOptions = {
         text: {
           color: COLORS.primary,
           "&:hover": {
-            backgroundColor: "rgba(207, 19, 179, 0.1)",
+            backgroundColor: "rgba(164, 211, 151, 0.1)",
           },
         },
         // Outlined variant: white color (secondary actions)
@@ -200,12 +220,12 @@ export const defaultThemeOptions: ThemeOptions = {
     MuiCssBaseline: {
       styleOverrides: {
         code: ({ theme }: { theme: Theme }) => ({
-          fontFamily: theme.typography.fontFamily, // Use Montserrat for consistency
+          fontFamily: theme.typography.fontFamily, // Use Montaga for consistency
           backgroundColor: theme.palette.background.default,
           color: theme.palette.text.primary,
         }),
         pre: ({ theme }: { theme: Theme }) => ({
-          fontFamily: theme.typography.fontFamily, // Use Montserrat for consistency
+          fontFamily: theme.typography.fontFamily, // Use Montaga for consistency
           backgroundColor: theme.palette.background.default,
           color: theme.palette.text.primary,
         }),
@@ -247,7 +267,7 @@ export const defaultThemeOptions: ThemeOptions = {
             padding: "2px 4px",
             borderRadius: 1,
             fontSize: theme.typography.body2.fontSize,
-            fontFamily: theme.typography.fontFamily, // Use Montserrat for consistency
+            fontFamily: theme.typography.fontFamily, // Use Montaga for consistency
           },
         }),
       },
@@ -265,3 +285,22 @@ export const defaultThemeOptions: ThemeOptions = {
 };
 
 export const defaultTheme = createTheme(defaultThemeOptions);
+
+declare module "@mui/material/styles" {
+  interface Palette {
+    game: {
+      variableColors: string[];
+      pipEmpty: string;
+      pipSize: number;
+      pipGap: number;
+    };
+  }
+  interface PaletteOptions {
+    game?: {
+      variableColors?: string[];
+      pipEmpty?: string;
+      pipSize?: number;
+      pipGap?: number;
+    };
+  }
+}

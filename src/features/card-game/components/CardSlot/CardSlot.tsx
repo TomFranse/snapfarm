@@ -1,12 +1,15 @@
 /**
  * CardSlot - Single slot (empty or occupied), drop target
+ *
+ * When occupied, the card covers the slot like two cards stacked.
  */
 
-import { Paper } from "@mui/material";
+import { Box } from "@mui/material";
 import type { Slot } from "@features/card-game/types/cardGame.types";
 import { VariablePips } from "@features/card-game/components/VariablePips/VariablePips";
 import { GameCard } from "@features/card-game/components/GameCard/GameCard";
 import { ScorePopup } from "@features/card-game/components/ScorePopup/ScorePopup";
+import { Card } from "@/components/common/Card";
 
 export interface CardSlotProps {
   slot: Slot;
@@ -21,9 +24,33 @@ export interface CardSlotProps {
 
 function renderSlotContent(slot: Slot) {
   if (slot.card === null) {
-    return <VariablePips variables={slot.variables} size="small" />;
+    return (
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-end",
+        }}
+      >
+        <VariablePips variables={slot.variables} />
+      </Box>
+    );
   }
-  return <GameCard card={slot.card} onBoard draggable={false} />;
+  return (
+    <Box
+      sx={{
+        position: "absolute",
+        top: -1,
+        left: -1,
+        right: -1,
+        bottom: -1,
+        zIndex: 1,
+      }}
+    >
+      <GameCard card={slot.card} onBoard draggable={false} />
+    </Box>
+  );
 }
 
 export function CardSlot({
@@ -52,26 +79,17 @@ export function CardSlot({
   };
 
   return (
-    <Paper
+    <Card
+      variant="slot"
+      isDropTarget={isDropTarget}
+      isEmpty={isEmpty}
       onDragOver={handleDragOver}
       onDragLeave={onDragLeave}
       onDrop={handleDrop}
       onClick={handleClick}
-      elevation={isDropTarget ? 4 : 1}
-      sx={{
-        minHeight: 120,
-        minWidth: 110,
-        p: 1,
-        position: "relative",
-        border: isDropTarget ? 2 : 1,
-        borderColor: isDropTarget ? "primary.main" : "divider",
-        borderRadius: 2,
-        backgroundColor: isDropTarget ? "action.hover" : "background.paper",
-        cursor: isEmpty ? "pointer" : "default",
-      }}
     >
       {renderSlotContent(slot)}
       {showScorePopup && scorePopup && <ScorePopup score={scorePopup.score} />}
-    </Paper>
+    </Card>
   );
 }
