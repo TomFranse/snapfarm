@@ -24,6 +24,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Explains why allowlist is needed (sandbox permission issues)
     - Prevents `env.exe: couldn't create signal pipe, Win32 error 5` errors when committing
 
+## [0.8.0] - 2026-02-18
+
+### Added
+
+- **Card Game Base Design**: New card game feature on homepage
+  - 3x3 grid of slots with 7 variables each (0-10), visualized as 5 pips per variable
+  - Player hand of 3 cards with drag-and-drop and click-to-select placement
+  - Score based on variable matching (smaller difference = higher score)
+  - Duration countdown on board cards; cards removed when duration reaches 0
+  - Adjacent empty slots reset to random values when a card is placed
+  - Animated score popup feedback on play
+
 ## [0.7.3] - 2026-02-12
 
 ### Fixed

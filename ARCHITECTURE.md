@@ -22,6 +22,11 @@ src/
 │   │   ├── hooks/       # React hooks for feature logic
 │   │   ├── services/    # Pure functions, API calls
 │   │   └── types/       # TypeScript types for feature
+│   ├── card-game/
+│   │   ├── components/  # Game board, cards, slots, hand, pips
+│   │   ├── hooks/       # Game state, card interaction
+│   │   ├── services/    # Game logic (generate, score, adjacency)
+│   │   └── types/       # Card game types
 │   ├── setup/
 │   │   ├── components/  # Setup wizard UI components
 │   │   │   └── sections/ # Setup section components
