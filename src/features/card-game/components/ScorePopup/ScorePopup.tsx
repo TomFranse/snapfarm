@@ -17,6 +17,7 @@ export function ScorePopup({ score }: ScorePopupProps) {
         top: -8,
         left: "50%",
         transform: "translateX(-50%)",
+        zIndex: 100,
         fontWeight: 700,
         color: "primary.main",
         animation: "scoreFadeOut 1.5s ease-out forwards",

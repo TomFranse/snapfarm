@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.2] - 2026-02-20
+
+### Fixed
+
+- **Score popup stacking order**: Score effect now displays on top of other elements
+  - Added z-index 100 to ScorePopup for explicit stacking above slot content
+  - Wrapped CardSlot in overflow-visible Box; moved ScorePopup outside Card to avoid clipping by overflow:hidden
+  - Popup no longer clipped when animating above slot
+
 ## [0.10.1] - 2026-02-20
 
 ### Changed

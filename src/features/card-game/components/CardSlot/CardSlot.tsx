@@ -65,15 +65,17 @@ export function CardSlot({ slot, slotIndex, scorePopup, onClick }: CardSlotProps
   };
 
   return (
-    <Card
-      ref={setNodeRef}
-      variant="slot"
-      isDropTarget={isDropTarget}
-      isEmpty={isEmpty}
-      onClick={handleClick}
-    >
-      {renderSlotContent(slot)}
+    <Box sx={{ position: "relative", overflow: "visible" }}>
+      <Card
+        ref={setNodeRef}
+        variant="slot"
+        isDropTarget={isDropTarget}
+        isEmpty={isEmpty}
+        onClick={handleClick}
+      >
+        {renderSlotContent(slot)}
+      </Card>
       {showScorePopup && scorePopup && <ScorePopup score={scorePopup.score} />}
-    </Card>
+    </Box>
   );
 }
