@@ -28,6 +28,10 @@ src/
 │   │   ├── hooks/       # Game state, card interaction
 │   │   ├── services/    # Game logic (generate, score, adjacency)
 │   │   └── types/       # Card game types
+│   ├── plants/
+│   │   ├── hooks/       # usePlantImages
+│   │   ├── services/    # plantImagesService (Supabase Storage + plant_images)
+│   │   └── types/       # PlantImage, PlantImageWithUrl
 │   ├── setup/
 │   │   ├── components/  # Setup wizard UI components
 │   │   │   └── sections/ # Setup section components

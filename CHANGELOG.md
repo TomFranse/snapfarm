@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-02-20
+
+### Added
+
+- **Plant tagged images**: Multiple tagged images per plant stored in Supabase Storage
+  - plant_images table (plant_id, tag, storage_path, display_order) with RLS
+  - plant-images storage bucket with public read, image-only (2MB limit)
+  - plantImagesService: upload, getPlantImages, getPlantImageByTag, deletePlantImage
+  - usePlantImages hook for components
+  - Path convention: {plant_id}/{plant_id}_{tag}.{ext} (e.g. tomato/tomato_small.png)
+  - DOC_PLANT_IMAGES.md documentation
+
 ## [0.11.1] - 2026-02-20
 
 ### Removed
