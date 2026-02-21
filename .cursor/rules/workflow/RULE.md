@@ -403,12 +403,6 @@ command 2>&1; if ($LASTEXITCODE -ne 0) { exit 1 }
 - `VITE_OPENROUTER_API_KEY` - OpenRouter API key for chat completion
 - `VITE_ELEVENLABS_API_KEY` - ElevenLabs API key for TTS/STT
 
-**Legacy Firebase Variables (may still be needed for hosting/deployment):**
-- `VITE_FIREBASE_API_KEY` - Firebase API key (for hosting deployment)
-- `VITE_FIREBASE_PROJECT_ID` - Firebase project ID (for hosting)
-- `VITE_FIREBASE_APP_ID` - Firebase app ID (for hosting deployment)
-- Note: Firebase variables are primarily used for Firebase Hosting deployment configuration. The app now uses Supabase for database, auth, and storage.
-
 **Hidden Files:**
 - Some files are not visible to the AI (for example `.env`)
 - When an issue involves hidden files, the AI should:

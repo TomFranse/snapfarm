@@ -7,12 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.1] - 2026-02-21
+
 ### Documentation
 
 - **Plant image generation prompt**: Added DOC_PLANT_IMAGE_PROMPT.md for AI-generated garden plant illustrations
   - GrowFarm theme colour palette reference
   - Square format, rules of thirds, fixed margins (25% L/R, 5% top/bottom)
   - Fixed background with dirt patch at bottom, master and short prompt variants
+
+### Changed
+
+- **Git remote**: Updated origin to point to TomFranse/snapfarm
 
 ## [0.14.0] - 2026-02-20
 

@@ -109,24 +109,23 @@ function getGameCardSx(selected: boolean, draggable: boolean): SxProps<Theme> {
   };
 }
 
-function getVariantSx(
-  variant: CardVariant,
-  opts: {
-    hoverable: boolean;
-    hoverElevation: number;
-    isDropTarget: boolean;
-    isEmpty: boolean;
-    selected: boolean;
-    draggable: boolean;
-  }
-): SxProps<Theme> {
-  if (variant === "content") {
-    return getContentSx(opts.hoverable, opts.hoverElevation);
-  }
-  if (variant === "slot") {
-    return getSlotSx(opts.isDropTarget, opts.isEmpty);
-  }
-  return getGameCardSx(opts.selected, opts.draggable);
+type VariantSxOpts = {
+  hoverable: boolean;
+  hoverElevation: number;
+  isDropTarget: boolean;
+  isEmpty: boolean;
+  selected: boolean;
+  draggable: boolean;
+};
+
+const VARIANT_SX_MAP: Record<CardVariant, (opts: VariantSxOpts) => SxProps<Theme>> = {
+  content: (opts) => getContentSx(opts.hoverable, opts.hoverElevation),
+  slot: (opts) => getSlotSx(opts.isDropTarget, opts.isEmpty),
+  "game-card": (opts) => getGameCardSx(opts.selected, opts.draggable),
+};
+
+function getVariantSx(variant: CardVariant, opts: VariantSxOpts): SxProps<Theme> {
+  return VARIANT_SX_MAP[variant](opts);
 }
 
 function getElevation(opts: {
@@ -135,9 +134,10 @@ function getElevation(opts: {
   isDropTarget: boolean;
   selected: boolean;
 }): number {
-  if (opts.variant === "content") return opts.elevation;
-  if (opts.variant === "slot") return opts.isDropTarget ? 4 : 1;
-  return opts.selected ? 8 : 2;
+  const { variant, elevation, isDropTarget, selected } = opts;
+  if (variant === "content") return elevation;
+  if (variant === "slot") return isDropTarget ? 4 : 1;
+  return selected ? 8 : 2;
 }
 
 export const Card = ({

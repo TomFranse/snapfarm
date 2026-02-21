@@ -12,10 +12,10 @@ import { AirtableConfigView } from "../views/AirtableConfigView";
 import { useAirtableSetup } from "../../hooks/useAirtableSetup";
 import { useConfigurationData } from "../../hooks/useConfigurationData";
 import { useConfigurationReset } from "../../hooks/useConfigurationReset";
-import { useEnvWriter } from "../../hooks/useEnvWriter";
-import { useWizardStep } from "../../hooks/useWizardStep";
-import { updateSetupSectionStatus, getSetupSectionsState } from "@utils/setupUtils";
+import { useAirtableWizard } from "../../hooks/useAirtableWizard";
+import { getSetupSectionsState } from "@utils/setupUtils";
 import type { SetupStatus } from "@utils/setupUtils";
+import type { AirtableTableStructure } from "@shared/services/airtableService";
 import type { AirtableConfiguration } from "../../types/config.types";
 
 interface AirtableSectionProps {
@@ -65,125 +65,122 @@ interface AirtableDialogProps {
   onStatusChange?: () => void;
 }
 
+function AirtableStep2Validate({
+  tableStructure,
+  loadingStructure,
+  structureError,
+  onBack,
+  onRetry,
+}: {
+  tableStructure: AirtableTableStructure | null;
+  loadingStructure: boolean;
+  structureError: string | null;
+  onBack: () => void;
+  onRetry: () => void;
+}) {
+  return (
+    <>
+      <Typography variant="h6" gutterBottom>
+        Validating Connection
+      </Typography>
+      <Typography variant="body2" color="text.secondary" paragraph>
+        Fetching table structure from Airtable...
+      </Typography>
+
+      <TableStructureDisplay
+        structure={tableStructure}
+        loading={loadingStructure}
+        error={structureError}
+      />
+
+      {structureError && (
+        <Box sx={{ mt: 2 }}>
+          <Button variant="outlined" onClick={onBack} sx={{ mr: 1 }}>
+            Back
+          </Button>
+          <Button variant="contained" onClick={onRetry} disabled={loadingStructure}>
+            Retry
+          </Button>
+        </Box>
+      )}
+    </>
+  );
+}
+
+function AirtableStep3Complete({
+  tableStructure,
+  airtableApiKey,
+  airtableBaseId,
+  airtableTableId,
+  envWritten,
+}: {
+  tableStructure: AirtableTableStructure | null;
+  airtableApiKey: string;
+  airtableBaseId: string;
+  airtableTableId: string;
+  envWritten: boolean;
+}) {
+  const variables = [
+    { name: "VITE_AIRTABLE_API_KEY", value: airtableApiKey },
+    { name: "VITE_AIRTABLE_BASE_ID", value: airtableBaseId },
+    { name: "VITE_AIRTABLE_TABLE_ID", value: airtableTableId },
+  ];
+
+  return (
+    <>
+      <Typography variant="h6" gutterBottom>
+        Setup Complete
+      </Typography>
+
+      <TableStructureDisplay structure={tableStructure} />
+
+      {!envWritten ? (
+        <EnvVariablesDisplay
+          variables={variables}
+          title="Environment Variables"
+          description="Click 'Save to .env' to write these values to your .env file:"
+        />
+      ) : (
+        <EnvVariablesDisplay
+          variables={variables}
+          title="Environment Variables Saved"
+          description="These values have been written to your .env file:"
+          showRestartWarning={true}
+        />
+      )}
+    </>
+  );
+}
+
 const AirtableDialog = ({ open, onClose, onStatusChange }: AirtableDialogProps) => {
-  const [airtableApiKey, setAirtableApiKey] = useState("");
-  const [airtableBaseId, setAirtableBaseId] = useState("");
-  const [airtableTableId, setAirtableTableId] = useState("");
-  const { fetchTableStructure, tableStructure, loadingStructure, structureError, resetStructure } =
-    useAirtableSetup();
+  const wizard = useAirtableWizard({ open, onClose, onStatusChange });
 
-  const envWriter = useEnvWriter();
+  const {
+    steps,
+    activeStep,
+    isFirstStep,
+    isLastStep,
+    showSkipButton,
+    stepValidation,
+    airtableApiKey,
+    setAirtableApiKey,
+    airtableBaseId,
+    setAirtableBaseId,
+    airtableTableId,
+    setAirtableTableId,
+    tableStructure,
+    loadingStructure,
+    structureError,
+    envWriter,
+    handleBack,
+    handleSave,
+    handleSkip,
+    fetchTableStructure,
+  } = wizard;
 
-  const TOTAL_STEPS = 4;
-  const wizard = useWizardStep({
-    totalSteps: TOTAL_STEPS,
-    onReset: resetStructure,
-  });
-
-  // Reset state when dialog opens/closes
-  useEffect(() => {
-    if (!open) {
-      wizard.reset();
-      setAirtableApiKey("");
-      setAirtableBaseId("");
-      setAirtableTableId("");
-      resetStructure();
-    }
-  }, [open, resetStructure, wizard]);
-
-  const handleNext = async () => {
-    const { activeStep, goToNext } = wizard;
-
-    // Step 0: Validate PAT is filled
-    if (activeStep === 0) {
-      if (!airtableApiKey) return;
-      await goToNext();
-      return;
-    }
-
-    // Step 1: Validate base and table are filled, then fetch structure
-    if (activeStep === 1) {
-      if (!airtableBaseId || !airtableTableId) return;
-      await goToNext();
-      await fetchTableStructure(airtableApiKey, airtableBaseId, airtableTableId);
-      return;
-    }
-
-    // Step 2: Move to completion step
-    if (activeStep === 2) {
-      await goToNext();
-    }
+  const handleRetry = () => {
+    void fetchTableStructure(airtableApiKey, airtableBaseId, airtableTableId);
   };
-
-  const handleBack = () => {
-    wizard.goToPrevious();
-  };
-
-  const handleSave = async () => {
-    const { isLastStep } = wizard;
-
-    // If not on last step, advance to next step
-    if (!isLastStep) {
-      await handleNext();
-      return;
-    }
-
-    // Final step - write env vars and mark as completed
-    if (!envWriter.envWritten) {
-      await envWriter.writeEnv({
-        VITE_AIRTABLE_API_KEY: airtableApiKey,
-        VITE_AIRTABLE_BASE_ID: airtableBaseId,
-        VITE_AIRTABLE_TABLE_ID: airtableTableId,
-      });
-      return;
-    }
-
-    updateSetupSectionStatus("airtable", "completed");
-    onStatusChange?.();
-    onClose();
-  };
-
-  const handleSkip = () => {
-    updateSetupSectionStatus("airtable", "skipped");
-    onStatusChange?.();
-    onClose();
-  };
-
-  const getStepValidation = () => {
-    const { activeStep } = wizard;
-    switch (activeStep) {
-      case 0:
-        return { canProceed: !!airtableApiKey, buttonText: "Next" };
-      case 1:
-        return {
-          canProceed: !!(airtableBaseId && airtableTableId),
-          buttonText: "Next",
-        };
-      case 2:
-        return {
-          canProceed: tableStructure !== null && !loadingStructure && !structureError,
-          buttonText:
-            tableStructure !== null && !loadingStructure && !structureError
-              ? "Next"
-              : "Validating...",
-          disabled: loadingStructure,
-        };
-      case 3:
-        return {
-          canProceed: true,
-          buttonText: envWriter.envWritten ? "Finish Setup" : "Save to .env",
-          disabled: envWriter.writingEnv,
-        };
-      default:
-        return { canProceed: false, buttonText: "Next" };
-    }
-  };
-
-  const stepValidation = getStepValidation();
-  const steps = ["Create PAT", "Choose Base & Table", "Validate Connection", "Complete Setup"];
-
-  const { activeStep, isFirstStep, isLastStep } = wizard;
-  const showSkipButton = activeStep === 0 || activeStep === 1;
 
   return (
     <SetupDialog
@@ -192,7 +189,7 @@ const AirtableDialog = ({ open, onClose, onStatusChange }: AirtableDialogProps) 
       onSave={handleSave}
       title="Configure Airtable"
       saveButtonText={stepValidation.buttonText}
-      saveButtonDisabled={!stepValidation.canProceed || stepValidation.disabled}
+      saveButtonDisabled={!stepValidation.canProceed || !!stepValidation.disabled}
       showCancel={showSkipButton}
       closeOnSave={isLastStep}
       additionalActions={
@@ -211,16 +208,13 @@ const AirtableDialog = ({ open, onClose, onStatusChange }: AirtableDialogProps) 
         ))}
       </Stepper>
 
-      {/* Step 0: Create PAT */}
       {activeStep === 0 && (
         <AirtablePatInstructions apiKey={airtableApiKey} onApiKeyChange={setAirtableApiKey} />
       )}
 
-      {/* Step 1: Choose Base & Table */}
       {activeStep === 1 && (
         <>
           <AirtableDescription />
-
           <AirtableFormFields
             baseId={airtableBaseId}
             tableId={airtableTableId}
@@ -230,74 +224,26 @@ const AirtableDialog = ({ open, onClose, onStatusChange }: AirtableDialogProps) 
         </>
       )}
 
-      {/* Step 2: Validate Connection */}
       {activeStep === 2 && (
-        <>
-          <Typography variant="h6" gutterBottom>
-            Validating Connection
-          </Typography>
-          <Typography variant="body2" color="text.secondary" paragraph>
-            Fetching table structure from Airtable...
-          </Typography>
-
-          <TableStructureDisplay
-            structure={tableStructure}
-            loading={loadingStructure}
-            error={structureError}
-          />
-
-          {structureError && (
-            <Box sx={{ mt: 2 }}>
-              <Button variant="outlined" onClick={handleBack} sx={{ mr: 1 }}>
-                Back
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => fetchTableStructure(airtableApiKey, airtableBaseId, airtableTableId)}
-                disabled={loadingStructure}
-              >
-                Retry
-              </Button>
-            </Box>
-          )}
-        </>
+        <AirtableStep2Validate
+          tableStructure={tableStructure}
+          loadingStructure={loadingStructure}
+          structureError={structureError}
+          onBack={handleBack}
+          onRetry={handleRetry}
+        />
       )}
 
-      {/* Step 3: Complete Setup */}
       {activeStep === 3 && (
-        <>
-          <Typography variant="h6" gutterBottom>
-            Setup Complete
-          </Typography>
-
-          <TableStructureDisplay structure={tableStructure} />
-
-          {!envWriter.envWritten ? (
-            <EnvVariablesDisplay
-              variables={[
-                { name: "VITE_AIRTABLE_API_KEY", value: airtableApiKey },
-                { name: "VITE_AIRTABLE_BASE_ID", value: airtableBaseId },
-                { name: "VITE_AIRTABLE_TABLE_ID", value: airtableTableId },
-              ]}
-              title="Environment Variables"
-              description="Click 'Save to .env' to write these values to your .env file:"
-            />
-          ) : (
-            <EnvVariablesDisplay
-              variables={[
-                { name: "VITE_AIRTABLE_API_KEY", value: airtableApiKey },
-                { name: "VITE_AIRTABLE_BASE_ID", value: airtableBaseId },
-                { name: "VITE_AIRTABLE_TABLE_ID", value: airtableTableId },
-              ]}
-              title="Environment Variables Saved"
-              description="These values have been written to your .env file:"
-              showRestartWarning={true}
-            />
-          )}
-        </>
+        <AirtableStep3Complete
+          tableStructure={tableStructure}
+          airtableApiKey={airtableApiKey}
+          airtableBaseId={airtableBaseId}
+          airtableTableId={airtableTableId}
+          envWritten={envWriter.envWritten}
+        />
       )}
 
-      {/* Navigation buttons */}
       {!isFirstStep && !isLastStep && (
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
           <Button onClick={handleBack}>Back</Button>
@@ -320,7 +266,6 @@ const AirtableViewDialog = ({ open, onClose, onStatusChange }: AirtableViewDialo
     onStatusChange?.();
   });
 
-  // Auto-sync configuration when dialog opens
   useEffect(() => {
     if (open) {
       const syncConfig = async () => {
@@ -328,7 +273,6 @@ const AirtableViewDialog = ({ open, onClose, onStatusChange }: AirtableViewDialo
           const { syncConfiguration } = await import("../../services/configService");
           const result = await syncConfiguration();
           if (result.success) {
-            // Refetch after successful sync
             void refetch();
           }
         } catch {

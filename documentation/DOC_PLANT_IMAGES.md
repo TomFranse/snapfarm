@@ -32,7 +32,9 @@ await remove("small");
 
 ## Bucket setup
 
-The bucket is created automatically on first upload via `ensurePlantImagesBucket()`. If you prefer to create it manually:
+The bucket is created automatically on first upload via `ensurePlantImagesBucket()`. This requires an RLS policy on `storage.buckets` allowing anon/public to INSERT the plant-images bucket (see migrations).
+
+If you prefer to create it manually:
 
 1. Supabase Dashboard → Storage → New bucket
 2. Name: `plant-images`
@@ -43,3 +45,11 @@ The bucket is created automatically on first upload via `ensurePlantImagesBucket
 ## Migration
 
 Run `supabase db push` or apply `20260220120000_create_plant_images.sql` to create the table and storage RLS policies.
+
+---
+
+## Known vulnerability (temporary)
+
+**Unauthenticated uploads allowed.** The app is not hosted yet. RLS policies currently allow anonymous (`anon`) users to upload, update, and delete plant images. This is intentional for local development.
+
+**Before hosting:** Remove or restrict the anon policies so only `authenticated` users can manage plant images. Migration `20260220130000_allow_anon_plant_image_uploads.sql` adds the anon policies; create a new migration to drop them before production deployment.

@@ -10,17 +10,9 @@ export interface CardHandProps {
   cards: GameCard[];
   selectedCardId: string | null;
   onCardSelect: (cardId: string) => void;
-  onCardDragStart: (e: React.DragEvent, cardId: string) => void;
-  onCardDragEnd: () => void;
 }
 
-export function CardHand({
-  cards,
-  selectedCardId,
-  onCardSelect,
-  onCardDragStart,
-  onCardDragEnd,
-}: CardHandProps) {
+export function CardHand({ cards, selectedCardId, onCardSelect }: CardHandProps) {
   return (
     <Box sx={{ mt: 4 }}>
       <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
@@ -33,8 +25,6 @@ export function CardHand({
             card={card}
             selected={selectedCardId === card.id}
             draggable
-            onDragStart={onCardDragStart}
-            onDragEnd={onCardDragEnd}
             onClick={onCardSelect}
           />
         ))}
