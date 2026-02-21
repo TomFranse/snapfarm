@@ -1,12 +1,13 @@
 {
   "name": "vite-mui-supabase-starter",
   "private": true,
-  "version": "0.14.1",
+  "version": "0.15.0",
   "type": "module",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
     "dev": "vite",
     "build": "tsc --project tsconfig.app.json && vite build",
+    "build:pages": "tsc --project tsconfig.app.json && vite build --base /snapfarm/",
     "preview": "vite preview",
     "lint": "eslint . --cache --cache-location .eslintcache",
     "lint:fix": "eslint . --fix --cache --cache-location .eslintcache",

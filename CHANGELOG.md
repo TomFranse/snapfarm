@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-02-21
+
+### Added
+
+- **GitHub Pages deployment**: Push to main triggers automatic deploy to GitHub Pages
+  - deploy-pages.yml workflow builds with base /snapfarm/ and deploys dist/
+  - Site will be at https://tomfranse.github.io/snapfarm/
+  - Requires Settings → Pages → Source: GitHub Actions (one-time setup)
+
 ## [0.14.1] - 2026-02-21
 
 ### Documentation
