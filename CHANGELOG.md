@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-02-22
+
+### Added
+
+- **Card adjacency effect indicators**: Cards show effect indicators (up/down/neutral) per variable on the right of the pip grid
+  - Up arrow: +2 to that variable on all adjacent slots when placed
+  - Down arrow: -2 to that variable on all adjacent slots when placed
+  - Square (neutral): no effect
+  - Effects apply to all adjacent slots (empty and occupied); values clamped 0–10
+  - Custom arrow SVGs from public folder; CropSquare for neutral
+  - Grid-aligned indicator column matching pip rows
+
+### Removed
+
+- **Adjacent slot randomization**: Removed resetAdjacentEmptySlots; adjacent slots now only modified by card effects (no random re-roll on placement)
+
 ## [0.15.0] - 2026-02-21
 
 ### Added

@@ -8,9 +8,22 @@ export interface CardVariables {
   values: [number, number, number, number, number, number, number];
 }
 
+export type EffectDirection = "up" | "down" | "neutral";
+
+export type EffectTuple = [
+  EffectDirection,
+  EffectDirection,
+  EffectDirection,
+  EffectDirection,
+  EffectDirection,
+  EffectDirection,
+  EffectDirection,
+];
+
 export interface GameCard {
   id: string;
   variables: CardVariables;
+  effects: EffectTuple;
   duration: number;
 }
 

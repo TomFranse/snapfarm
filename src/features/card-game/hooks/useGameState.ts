@@ -11,7 +11,7 @@ import {
   createInitialHand,
   generateCard,
   calculateScore,
-  resetAdjacentEmptySlots,
+  applyAdjacentEffects,
   getAllPlacementScores,
   assignRanksWithTies,
   getBonusForRank,
@@ -56,7 +56,7 @@ export function useGameState() {
         let nextBoard = prevBoard.map((s, i) =>
           i === slotIndex ? { ...s, card: { ...card }, variables: s.variables } : { ...s }
         );
-        nextBoard = resetAdjacentEmptySlots(nextBoard, slotIndex);
+        nextBoard = applyAdjacentEffects(nextBoard, slotIndex, card.effects);
         nextBoard = nextBoard.map((s) => {
           if (s.card === null) return s;
           const newDuration = s.card.duration - 1;

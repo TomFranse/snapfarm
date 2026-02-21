@@ -43,7 +43,7 @@ function GameCardContent({
           alignItems: "flex-end",
         }}
       >
-        <VariablePips variables={card.variables} />
+        <VariablePips variables={card.variables} effects={card.effects} />
       </Box>
     </Card>
   );

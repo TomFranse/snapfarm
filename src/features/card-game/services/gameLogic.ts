@@ -4,9 +4,15 @@
  * Pure functions for card generation, scoring, and adjacency.
  */
 
-import type { CardVariables, GameCard, Slot } from "@features/card-game/types/cardGame.types";
+import type {
+  CardVariables,
+  EffectTuple,
+  GameCard,
+  Slot,
+} from "@features/card-game/types/cardGame.types";
 
 const VARIABLE_COUNT = 7;
+const EFFECT_DELTA = 2;
 const MAX_VARIABLE_VALUE = 10;
 const MIN_DURATION = 1;
 const MAX_DURATION = 10;
@@ -29,11 +35,22 @@ export function generateVariables(): CardVariables {
   return { values };
 }
 
+const EFFECT_OPTIONS: EffectTuple[number][] = ["up", "down", "neutral"];
+
+export function generateEffects(): EffectTuple {
+  const values = Array.from(
+    { length: VARIABLE_COUNT },
+    () => EFFECT_OPTIONS[randomInt(0, EFFECT_OPTIONS.length - 1)]
+  ) as EffectTuple;
+  return values;
+}
+
 export function generateCard(): GameCard {
   idCounter += 1;
   return {
     id: `card-${idCounter}`,
     variables: generateVariables(),
+    effects: generateEffects(),
     duration: randomInt(MIN_DURATION, MAX_DURATION),
   };
 }
@@ -74,13 +91,25 @@ export function createInitialHand(): GameCard[] {
   return [generateCard(), generateCard(), generateCard()];
 }
 
-export function resetAdjacentEmptySlots(board: Slot[], placedSlotIndex: number): Slot[] {
+export function applyAdjacentEffects(
+  board: Slot[],
+  placedSlotIndex: number,
+  effects: EffectTuple
+): Slot[] {
   const adjacentIndices = getAdjacentSlotIndices(placedSlotIndex);
   return board.map((slot, index) => {
-    if (adjacentIndices.includes(index) && slot.card === null) {
-      return { ...slot, variables: generateVariables() };
+    if (!adjacentIndices.includes(index)) return slot;
+
+    const newValues = [...slot.variables.values] as CardVariables["values"];
+    for (let i = 0; i < VARIABLE_COUNT; i += 1) {
+      const dir = effects[i];
+      if (dir === "up") {
+        newValues[i] = Math.min(MAX_VARIABLE_VALUE, newValues[i] + EFFECT_DELTA);
+      } else if (dir === "down") {
+        newValues[i] = Math.max(0, newValues[i] - EFFECT_DELTA);
+      }
     }
-    return slot;
+    return { ...slot, variables: { values: newValues } };
   });
 }
 
