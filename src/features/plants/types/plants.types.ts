@@ -1,5 +1,5 @@
 /**
- * Global min/max limits for environment parameters (T, L, F, P, M, A).
+ * Global min/max limits for environment parameters (T, L, F, P, M, A, S, W, R).
  * Stored as strings for form editing; defaults live in app code, overrides in localStorage.
  */
 export interface GlobalLimits {
@@ -17,6 +17,12 @@ export interface GlobalLimits {
   m_max: string;
   a_min: string;
   a_max: string;
+  s_min: string;
+  s_max: string;
+  w_min: string;
+  w_max: string;
+  r_min: string;
+  r_max: string;
 }
 
 /**
@@ -71,6 +77,9 @@ export interface Plant {
   a_opt?: number | null;
   ay_max?: number | null;
   ay_min?: number | null;
+  s_opt?: number | null;
+  w_opt?: number | null;
+  r_opt?: number | null;
   establish_ms?: number | null;
   flowering_ms?: number | null;
   rest_ms?: number | null;
@@ -90,5 +99,18 @@ export interface Plant {
   spread_distance_tiles?: number | null;
   yield_visual_asset_id?: string | null;
   environment_effects?: unknown;
+  /** Effects this plant has on surroundings: ΔT, ΔL, ΔF, ΔP, ΔM, ΔA, ΔW, ΔR */
+  effects?: PlantEffects | null;
   yield_svg_data?: string | null;
+}
+
+export interface PlantEffects {
+  delta_t?: number;
+  delta_l?: number;
+  delta_f?: number;
+  delta_p?: number;
+  delta_m?: number;
+  delta_a?: number;
+  delta_w?: number;
+  delta_r?: number;
 }

@@ -32,7 +32,7 @@ src/
 │   │   ├── components/  # GlobalSettingsSection, PlantEnvPips, PlantDetailContent
 │   │   ├── hooks/       # usePlantImages, useGlobalLimits, usePlantDetail, usePlants
 │   │   ├── services/   # plantImagesService, plantsService
-│   │   └── types/       # Plant, PlantImage, GlobalLimits, globalLimitsDefaults
+│   │   └── types/       # Plant, PlantEffects, PlantImage, GlobalLimits, globalLimitsDefaults
 │   ├── setup/
 │   │   ├── components/  # Setup wizard UI components
 │   │   │   └── sections/ # Setup section components

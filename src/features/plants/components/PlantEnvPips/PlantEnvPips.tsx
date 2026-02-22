@@ -1,9 +1,9 @@
 /**
- * PlantEnvPips - Renders 6 environment variables (T, L, F, P, M, A) as 5 pips each.
+ * PlantEnvPips - Renders 9 environment variables (T, L, F, P, M, A, S, W, R) as 5 pips each.
  * Uses icons and semantic colors. Same fill logic as VariablePips (card game).
  */
 
-import { Box, useTheme } from "@mui/material";
+import { Box, Divider, useTheme } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import ThermostatIcon from "@mui/icons-material/Thermostat";
 import LightModeIcon from "@mui/icons-material/LightMode";
@@ -11,6 +11,9 @@ import GrassIcon from "@mui/icons-material/Grass";
 import GrainIcon from "@mui/icons-material/Grain";
 import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import ScienceIcon from "@mui/icons-material/Science";
+import LandscapeIcon from "@mui/icons-material/Landscape";
+import AirIcon from "@mui/icons-material/Air";
+import BugReportIcon from "@mui/icons-material/BugReport";
 import type { Plant, GlobalLimits } from "../../types/plants.types";
 
 const COLS = 5;
@@ -23,9 +26,21 @@ const ENV_COLORS: Record<string, string> = {
   p: "#8B7355", // Porosity - earth brown
   m: "#4A8AB5", // Moisture - blue
   a: "#AB4AB5", // Acidity - purple
+  s: "#6B4423", // Soil - dark earth brown
+  w: "#87CEEB", // Wind - sky blue
+  r: "#C45C4A", // Pest resistance - red/orange
 };
 
+/** Order: Light, Temp, Soil, Moisture, Wind, Pest | spacing | Fertility, Porosity, Acidity */
 const ENV_CONFIG = [
+  {
+    key: "l" as const,
+    optKey: "l_opt" as const,
+    minKey: "l_min" as const,
+    maxKey: "l_max" as const,
+    Icon: LightModeIcon,
+    label: "Light",
+  },
   {
     key: "t" as const,
     optKey: "t_opt" as const,
@@ -35,12 +50,36 @@ const ENV_CONFIG = [
     label: "Temperature",
   },
   {
-    key: "l" as const,
-    optKey: "l_opt" as const,
-    minKey: "l_min" as const,
-    maxKey: "l_max" as const,
-    Icon: LightModeIcon,
-    label: "Light",
+    key: "s" as const,
+    optKey: "s_opt" as const,
+    minKey: "s_min" as const,
+    maxKey: "s_max" as const,
+    Icon: LandscapeIcon,
+    label: "Soil",
+  },
+  {
+    key: "m" as const,
+    optKey: "m_opt" as const,
+    minKey: "m_min" as const,
+    maxKey: "m_max" as const,
+    Icon: WaterDropIcon,
+    label: "Moisture",
+  },
+  {
+    key: "w" as const,
+    optKey: "w_opt" as const,
+    minKey: "w_min" as const,
+    maxKey: "w_max" as const,
+    Icon: AirIcon,
+    label: "Wind resistance",
+  },
+  {
+    key: "r" as const,
+    optKey: "r_opt" as const,
+    minKey: "r_min" as const,
+    maxKey: "r_max" as const,
+    Icon: BugReportIcon,
+    label: "Pest resistance",
   },
   {
     key: "f" as const,
@@ -57,14 +96,6 @@ const ENV_CONFIG = [
     maxKey: "p_max" as const,
     Icon: GrainIcon,
     label: "Porosity",
-  },
-  {
-    key: "m" as const,
-    optKey: "m_opt" as const,
-    minKey: "m_min" as const,
-    maxKey: "m_max" as const,
-    Icon: WaterDropIcon,
-    label: "Moisture",
   },
   {
     key: "a" as const,
@@ -114,48 +145,51 @@ export function PlantEnvPips({ plant, limits }: PlantEnvPipsProps) {
           gap: 1,
         }}
       >
-        {ENV_CONFIG.map(({ key, optKey, minKey, maxKey, Icon, label }) => {
+        {ENV_CONFIG.map(({ key, optKey, minKey, maxKey, Icon, label }, index) => {
           const opt = plant[optKey];
           const value = optToScale(opt, limits[minKey], limits[maxKey]);
           const fills = getPipFills(value);
           const color = ENV_COLORS[key] ?? theme.palette.game.variableColors[0];
+          const showSpacerBefore = index === 6;
 
           return (
-            <Box
-              key={key}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <Icon
-                sx={(theme) => ({
-                  fontSize: theme.typography.body2.fontSize,
-                  color: theme.palette.text.secondary,
-                })}
-                aria-label={label}
-              />
+            <Box key={key}>
+              {showSpacerBefore && <Divider sx={{ my: 1.5 }} />}
               <Box
                 sx={{
-                  display: "grid",
-                  gridTemplateColumns: `repeat(${COLS}, ${pipSize}px)`,
-                  gap: pipGap,
-                  width: "fit-content",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
                 }}
               >
-                {fills.map((fill, i) => (
-                  <Box
-                    key={i}
-                    sx={{
-                      width: pipSize,
-                      height: pipSize,
-                      borderRadius: "50%",
-                      backgroundColor:
-                        fill === 0 ? pipEmpty : fill === 1 ? alpha(color, 0.5) : color,
-                    }}
-                  />
-                ))}
+                <Icon
+                  sx={(theme) => ({
+                    fontSize: theme.typography.body2.fontSize,
+                    color: theme.palette.text.secondary,
+                  })}
+                  aria-label={label}
+                />
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: `repeat(${COLS}, ${pipSize}px)`,
+                    gap: pipGap,
+                    width: "fit-content",
+                  }}
+                >
+                  {fills.map((fill, i) => (
+                    <Box
+                      key={i}
+                      sx={{
+                        width: pipSize,
+                        height: pipSize,
+                        borderRadius: "50%",
+                        backgroundColor:
+                          fill === 0 ? pipEmpty : fill === 1 ? alpha(color, 0.5) : color,
+                      }}
+                    />
+                  ))}
+                </Box>
               </Box>
             </Box>
           );

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-02-22
+
+### Added
+
+- **Plant soil, wind, pest resistance (s_opt, w_opt, r_opt)**: New columns and UI for soil quality, wind resistance, pest resistance
+  - s_opt: soil quality (initially from avg of porosity, fertility, acidity; editable)
+  - w_opt, r_opt: 0–100 scale; populated with research data
+  - Global limits extended with s_min/s_max, w_min/w_max, r_min/r_max
+- **NW European C climate defaults**: Global limits default to temperate NW Europe (Cfb) ranges
+- **Plant effects JSONB**: New `effects` column with deltas (ΔT, ΔL, ΔF, ΔP, ΔM, ΔA, ΔW, ΔR) for plant impact on surroundings
+- **Variable reorder on plant pages**: Light, Temp, Soil, Moisture, Wind, Pest | spacing | Fertility, Porosity, Acidity (pips and text list)
+- **DOC_PLANT_RESEARCH_QUERIES.md**: Search queries and Gemini prompt for researching plant values
+
+### Changed
+
+- **EnvRow always visible**: Wind and pest resistance rows show "—" when null instead of hiding
+- **useGlobalLimits merge**: Loaded localStorage merged with defaults so new keys (s, w, r) get values
+
 ## [0.16.0] - 2026-02-22
 
 ### Added

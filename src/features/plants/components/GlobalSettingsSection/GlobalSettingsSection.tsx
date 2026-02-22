@@ -25,6 +25,12 @@ const FIELDS: { key: keyof GlobalLimits; label: string }[] = [
   { key: "m_max", label: "M max" },
   { key: "a_min", label: "A min" },
   { key: "a_max", label: "A max" },
+  { key: "s_min", label: "S min" },
+  { key: "s_max", label: "S max" },
+  { key: "w_min", label: "W min" },
+  { key: "w_max", label: "W max" },
+  { key: "r_min", label: "R min" },
+  { key: "r_max", label: "R max" },
 ];
 
 export interface GlobalSettingsSectionProps {

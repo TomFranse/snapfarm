@@ -8,8 +8,8 @@ function loadFromStorage(): GlobalLimits | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as GlobalLimits;
-    return parsed;
+    const parsed = JSON.parse(raw) as Partial<GlobalLimits>;
+    return { ...DEFAULT_GLOBAL_LIMITS, ...parsed };
   } catch {
     return null;
   }
