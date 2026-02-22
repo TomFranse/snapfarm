@@ -81,12 +81,12 @@ const EnvironmentSection = ({ plant }: { plant: Plant }) => (
     </Typography>
     <List dense disablePadding>
       <EnvRow label="Light (L)" min={plant.l_min} opt={plant.l_opt} max={plant.l_max} />
-      <EnvRow label="Temperature (T)" min={plant.t_min} opt={plant.t_opt} max={plant.t_max} />
       <EnvRow label="Soil (S)" min={undefined} opt={plant.s_opt} max={undefined} />
       <EnvRow label="Moisture (M)" min={plant.m_min} opt={plant.m_opt} max={plant.m_max} />
       <EnvRow label="Wind resistance (W)" min={undefined} opt={plant.w_opt} max={undefined} />
       <EnvRow label="Pest resistance (R)" min={undefined} opt={plant.r_opt} max={undefined} />
       <Divider sx={{ my: 1 }} component="li" />
+      <EnvRow label="Temperature (T)" min={plant.t_min} opt={plant.t_opt} max={plant.t_max} />
       <EnvRow label="Fertility (F)" min={plant.f_min} opt={plant.f_opt} max={plant.f_max} />
       <EnvRow label="Porosity (P)" min={plant.p_min} opt={plant.p_opt} max={plant.p_max} />
       <EnvRow label="Acidity (A)" min={plant.a_min} opt={plant.a_opt} max={plant.a_max} />

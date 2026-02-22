@@ -111,6 +111,7 @@ export interface PlantEffects {
   delta_p?: number;
   delta_m?: number;
   delta_a?: number;
+  delta_s?: number;
   delta_w?: number;
   delta_r?: number;
 }

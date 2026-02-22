@@ -3,7 +3,7 @@
  * Uses icons and semantic colors. Same fill logic as VariablePips (card game).
  */
 
-import { Box, Divider, useTheme } from "@mui/material";
+import { Box, Divider, Typography, useTheme } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import ThermostatIcon from "@mui/icons-material/Thermostat";
 import LightModeIcon from "@mui/icons-material/LightMode";
@@ -14,9 +14,11 @@ import ScienceIcon from "@mui/icons-material/Science";
 import LandscapeIcon from "@mui/icons-material/Landscape";
 import AirIcon from "@mui/icons-material/Air";
 import BugReportIcon from "@mui/icons-material/BugReport";
-import type { Plant, GlobalLimits } from "../../types/plants.types";
+import type { Plant, GlobalLimits, PlantEffects } from "../../types/plants.types";
 
 const COLS = 5;
+
+type EffectKey = keyof PlantEffects;
 
 /** Semantic colors for each env variable */
 const ENV_COLORS: Record<string, string> = {
@@ -31,7 +33,20 @@ const ENV_COLORS: Record<string, string> = {
   r: "#C45C4A", // Pest resistance - red/orange
 };
 
-/** Order: Light, Temp, Soil, Moisture, Wind, Pest | spacing | Fertility, Porosity, Acidity */
+/** Map variable key to effects delta key */
+const EFFECT_KEY_MAP: Partial<Record<string, EffectKey>> = {
+  l: "delta_l",
+  t: "delta_t",
+  s: "delta_s",
+  m: "delta_m",
+  w: "delta_w",
+  r: "delta_r",
+  f: "delta_f",
+  p: "delta_p",
+  a: "delta_a",
+};
+
+/** Order: Basic: Light, Soil, Moisture, Wind, Pest | Advanced: Temperature, Fertility, Porosity, Acidity */
 const ENV_CONFIG = [
   {
     key: "l" as const,
@@ -40,14 +55,6 @@ const ENV_CONFIG = [
     maxKey: "l_max" as const,
     Icon: LightModeIcon,
     label: "Light",
-  },
-  {
-    key: "t" as const,
-    optKey: "t_opt" as const,
-    minKey: "t_min" as const,
-    maxKey: "t_max" as const,
-    Icon: ThermostatIcon,
-    label: "Temperature",
   },
   {
     key: "s" as const,
@@ -80,6 +87,14 @@ const ENV_CONFIG = [
     maxKey: "r_max" as const,
     Icon: BugReportIcon,
     label: "Pest resistance",
+  },
+  {
+    key: "t" as const,
+    optKey: "t_opt" as const,
+    minKey: "t_min" as const,
+    maxKey: "t_max" as const,
+    Icon: ThermostatIcon,
+    label: "Temperature",
   },
   {
     key: "f" as const,
@@ -127,6 +142,26 @@ function optToScale(opt: number | null | undefined, gMin: string, gMax: string):
   return Math.max(0, Math.min(10, value));
 }
 
+/**
+ * Deltas for L, F, P, M, W, R, S are on 0–100 scale.
+ * Soil: 0 = global 25, 10 blips = global 85 (range 60).
+ * Deltas for T and A are in °C and pH respectively.
+ */
+const DELTA_RANGE_0_100 = new Set(["l", "f", "p", "m", "w", "r", "s"]);
+
+/** Convert raw delta to blip scale (0–10). Uses 0–100 range for L,F,P,M,W,R; gMin/gMax for T,A */
+function deltaToBlips(delta: number, key: string, gMin: string, gMax: string): number {
+  const min = DELTA_RANGE_0_100.has(key) ? 0 : parseFloat(gMin);
+  const max = DELTA_RANGE_0_100.has(key) ? 100 : parseFloat(gMax);
+  if (min === max) return 0;
+  return (delta / (max - min)) * 10;
+}
+
+/** Round to nearest 0.5 for half-blip display */
+function toHalfBlip(value: number): number {
+  return Math.round(value * 2) / 2;
+}
+
 export interface PlantEnvPipsProps {
   plant: Plant;
   limits: GlobalLimits;
@@ -150,7 +185,7 @@ export function PlantEnvPips({ plant, limits }: PlantEnvPipsProps) {
           const value = optToScale(opt, limits[minKey], limits[maxKey]);
           const fills = getPipFills(value);
           const color = ENV_COLORS[key] ?? theme.palette.game.variableColors[0];
-          const showSpacerBefore = index === 6;
+          const showSpacerBefore = index === 5;
 
           return (
             <Box key={key}>
@@ -160,6 +195,7 @@ export function PlantEnvPips({ plant, limits }: PlantEnvPipsProps) {
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
+                  width: "100%",
                 }}
               >
                 <Icon
@@ -190,6 +226,31 @@ export function PlantEnvPips({ plant, limits }: PlantEnvPipsProps) {
                     />
                   ))}
                 </Box>
+                {(() => {
+                  const effectKey = EFFECT_KEY_MAP[key];
+                  const delta = effectKey && plant.effects?.[effectKey];
+                  if (delta === undefined || delta === null) return null;
+                  const blips = toHalfBlip(
+                    deltaToBlips(delta, key, limits[minKey], limits[maxKey])
+                  );
+                  const sign = blips > 0 ? "+" : "";
+                  const invertedColor =
+                    blips > 0 ? "error.main" : blips < 0 ? "success.main" : "text.secondary";
+                  const normalColor =
+                    blips > 0 ? "success.main" : blips < 0 ? "error.main" : "text.secondary";
+                  const effectColor = key === "r" || key === "w" ? invertedColor : normalColor;
+                  const display = blips === 0 ? "0" : `${sign}${blips}`;
+                  return (
+                    <Typography
+                      variant="body2"
+                      component="span"
+                      sx={{ fontWeight: 500, color: effectColor }}
+                      aria-label={`Effect on ${label}: ${display} blips`}
+                    >
+                      {display}
+                    </Typography>
+                  );
+                })()}
               </Box>
             </Box>
           );

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-02-22
+
+### Added
+
+- **Plant effect blips**: Effect deltas shown as blip-equivalent numbers next to pips (half-blip precision)
+  - Normalized using 0–100 scale for L,F,P,M,W,R,S; °C/pH for T,A
+  - delta_s (soil effect) with reasoned values per plant
+- **Effect sign conventions**: Pest (+ invites, − protects); Wind (+ exposed, − protects); inverted colors for both
+
+### Changed
+
+- **Basic vs advanced variables**: Temperature moved below divider (advanced); basic: Light, Soil, Moisture, Wind, Pest
+- **Light limits default**: 0–10 (was 6–14)
+- **Effect display**: Score next to blips; show 0 when effect exists; test-plant effects populated
+
 ## [0.17.0] - 2026-02-22
 
 ### Added
