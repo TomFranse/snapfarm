@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-02-22
+
+### Added
+
+- **Effect delta arrows**: Up/down arrows next to plant effect blips indicating direction (+ up, − down); no arrow when unchanged; fixed-width column keeps numbers aligned
+
 ## [0.18.0] - 2026-02-22
 
 ### Added

@@ -17,8 +17,35 @@ import BugReportIcon from "@mui/icons-material/BugReport";
 import type { Plant, GlobalLimits, PlantEffects } from "../../types/plants.types";
 
 const COLS = 5;
+const ARROW_SIZE = 12;
+const ARROW_COL_WIDTH = 14;
 
 type EffectKey = keyof PlantEffects;
+
+function EffectArrow({
+  direction,
+  color,
+}: {
+  direction: "up" | "down";
+  color: string;
+}) {
+  const base = import.meta.env.BASE_URL;
+  const src = direction === "up" ? `${base}arrow-up.svg` : `${base}arrow-down.svg`;
+  return (
+    <Box
+      component="span"
+      sx={{
+        display: "inline-block",
+        width: ARROW_SIZE,
+        height: ARROW_SIZE,
+        minWidth: ARROW_SIZE,
+        backgroundColor: color,
+        mask: `url(${src}) center / contain no-repeat`,
+        WebkitMask: `url(${src}) center / contain no-repeat`,
+      }}
+    />
+  );
+}
 
 /** Semantic colors for each env variable */
 const ENV_COLORS: Record<string, string> = {
@@ -240,15 +267,48 @@ export function PlantEnvPips({ plant, limits }: PlantEnvPipsProps) {
                     blips > 0 ? "success.main" : blips < 0 ? "error.main" : "text.secondary";
                   const effectColor = key === "r" || key === "w" ? invertedColor : normalColor;
                   const display = blips === 0 ? "0" : `${sign}${blips}`;
+                  const resolvedColor =
+                    effectColor === "success.main"
+                      ? theme.palette.success.main
+                      : effectColor === "error.main"
+                        ? theme.palette.error.main
+                        : theme.palette.text.secondary;
                   return (
-                    <Typography
-                      variant="body2"
+                    <Box
                       component="span"
-                      sx={{ fontWeight: 500, color: effectColor }}
-                      aria-label={`Effect on ${label}: ${display} blips`}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.5,
+                        minWidth: ARROW_COL_WIDTH,
+                      }}
                     >
-                      {display}
-                    </Typography>
+                      <Box
+                        component="span"
+                        sx={{
+                          width: ARROW_COL_WIDTH,
+                          minWidth: ARROW_COL_WIDTH,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {blips > 0 && (
+                          <EffectArrow direction="up" color={resolvedColor} />
+                        )}
+                        {blips < 0 && (
+                          <EffectArrow direction="down" color={resolvedColor} />
+                        )}
+                      </Box>
+                      <Typography
+                        variant="body2"
+                        component="span"
+                        sx={{ fontWeight: 500, color: effectColor }}
+                        aria-label={`Effect on ${label}: ${display} blips`}
+                      >
+                        {display}
+                      </Typography>
+                    </Box>
                   );
                 })()}
               </Box>
