@@ -1,5 +1,6 @@
 /**
  * GameCard - Card with pip visualization and duration badge, draggable via dnd-kit
+ * Plant cards show the plant's image as background.
  */
 
 import { Box, Typography } from "@mui/material";
@@ -8,6 +9,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type { GameCard as GameCardType } from "@features/card-game/types/cardGame.types";
 import { VariablePips } from "@features/card-game/components/VariablePips/VariablePips";
 import { Card } from "@/components/common/Card";
+import { useGameContext } from "@features/card-game/context/GameProvider";
 
 export interface GameCardProps {
   card: GameCardType;
@@ -22,18 +24,42 @@ function GameCardContent({
   selected = false,
   onClick,
   durationBadge,
+  imageUrl,
 }: {
   card: GameCardType;
   selected: boolean;
   onClick?: (cardId: string) => void;
   durationBadge: React.ReactNode;
+  imageUrl: string | null;
 }) {
   const handleClick = () => {
     if (onClick) onClick(card.id);
   };
 
+  const cardSx = imageUrl
+    ? {
+        backgroundImage: `url(${imageUrl})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.5) 100%)",
+          borderRadius: "inherit",
+          pointerEvents: "none",
+        },
+      }
+    : undefined;
+
   return (
-    <Card variant="game-card" selected={selected} draggable={false} onClick={handleClick}>
+    <Card
+      variant="game-card"
+      selected={selected}
+      draggable={false}
+      onClick={handleClick}
+      sx={cardSx}
+    >
       {durationBadge}
       <Box
         sx={{
@@ -41,6 +67,8 @@ function GameCardContent({
           display: "flex",
           justifyContent: "center",
           alignItems: "flex-end",
+          position: "relative",
+          zIndex: 1,
         }}
       >
         <VariablePips variables={card.variables} effects={card.effects} />
@@ -56,6 +84,9 @@ export function GameCard({
   onClick,
   onBoard = false,
 }: GameCardProps) {
+  const { plantCardImageUrls } = useGameContext();
+  const imageUrl = plantCardImageUrls[card.id] ?? null;
+
   const isDraggable = draggable && !onBoard;
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -79,7 +110,14 @@ export function GameCard({
   );
 
   if (onBoard) {
-    return <GameCardContent card={card} selected={false} durationBadge={durationBadge} />;
+    return (
+      <GameCardContent
+        card={card}
+        selected={false}
+        durationBadge={durationBadge}
+        imageUrl={imageUrl}
+      />
+    );
   }
 
   // When using DragOverlay, don't transform the original - it stays in place.
@@ -103,7 +141,12 @@ export function GameCard({
         if (!isDragging && onClick) onClick(card.id);
       }}
     >
-      <GameCardContent card={card} selected={selected} durationBadge={durationBadge} />
+      <GameCardContent
+        card={card}
+        selected={selected}
+        durationBadge={durationBadge}
+        imageUrl={imageUrl}
+      />
     </Box>
   );
 }

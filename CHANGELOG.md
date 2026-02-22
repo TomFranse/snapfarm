@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-02-22
+
+### Added
+
+- **Plant random hand**: 20% chance that replacement cards are real plants from the database instead of random
+  - Plant cards use actual opt values (L, S, M, W, R) and effects from plants table
+  - getPlantsForCards fetches plants for card game; test-plant excluded
+- **Plant card image background**: Plant cards display the plant's first image as card background
+  - Gradient overlay for pip readability; images from plant_images table
+
 ## [0.19.0] - 2026-02-22
 
 ### Added

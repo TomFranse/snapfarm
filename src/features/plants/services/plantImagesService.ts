@@ -130,6 +130,14 @@ export const getPlantImages = async (plantId: string): Promise<PlantImageWithUrl
 };
 
 /**
+ * Get the URL of the first image for a plant (by display_order). For card backgrounds.
+ */
+export const getFirstPlantImageUrl = async (plantId: string): Promise<string | null> => {
+  const images = await getPlantImages(plantId);
+  return images[0]?.public_url ?? null;
+};
+
+/**
  * Get a single image by plant and tag.
  */
 export const getPlantImageByTag = async (

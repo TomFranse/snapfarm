@@ -6,10 +6,12 @@
 
 import { useState, useCallback, useEffect } from "react";
 import type { GameCard, Slot, ScorePopupState } from "@features/card-game/types/cardGame.types";
+import type { GlobalLimitsForCard, PlantForCard } from "@features/card-game/types/cardGame.types";
+import { DEFAULT_GLOBAL_LIMITS } from "@features/plants/types/globalLimitsDefaults";
 import {
   createInitialBoard,
   createInitialHand,
-  generateCard,
+  generateCardOrPlantCard,
   calculateScore,
   applyAdjacentEffects,
   getAllPlacementScores,
@@ -21,7 +23,10 @@ const SCORE_POPUP_DURATION_MS = 1500;
 
 export type { ScorePopupState } from "@features/card-game/types/cardGame.types";
 
-export function useGameState() {
+export function useGameState(
+  plants: PlantForCard[] = [],
+  limits: GlobalLimitsForCard | null = null
+) {
   const [board, setBoard] = useState<Slot[]>(() => createInitialBoard());
   const [hand, setHand] = useState<GameCard[]>(() => createInitialHand());
   const [totalScore, setTotalScore] = useState(0);
@@ -45,11 +50,25 @@ export function useGameState() {
       const rank = ranks.get(`${cardId}-${slotIndex}`);
       const bonus = getBonusForRank(rank);
 
+      const effectiveLimits: GlobalLimitsForCard = limits ?? {
+        l_min: DEFAULT_GLOBAL_LIMITS.l_min,
+        l_max: DEFAULT_GLOBAL_LIMITS.l_max,
+        s_min: DEFAULT_GLOBAL_LIMITS.s_min,
+        s_max: DEFAULT_GLOBAL_LIMITS.s_max,
+        m_min: DEFAULT_GLOBAL_LIMITS.m_min,
+        m_max: DEFAULT_GLOBAL_LIMITS.m_max,
+        w_min: DEFAULT_GLOBAL_LIMITS.w_min,
+        w_max: DEFAULT_GLOBAL_LIMITS.w_max,
+        r_min: DEFAULT_GLOBAL_LIMITS.r_min,
+        r_max: DEFAULT_GLOBAL_LIMITS.r_max,
+      };
+      const nextCard = generateCardOrPlantCard(plants, effectiveLimits);
+
       setTotalScore((s) => s + score + bonus);
       setScorePopup({ score, slotIndex, bonus, rank });
       setHand((prevHand) => {
         const filtered = prevHand.filter((c) => c.id !== cardId);
-        return [...filtered, generateCard()];
+        return [...filtered, nextCard];
       });
 
       setBoard((prevBoard) => {
@@ -68,7 +87,7 @@ export function useGameState() {
 
       return true;
     },
-    [board, hand]
+    [board, hand, plants, limits]
   );
 
   return { board, hand, totalScore, scorePopup, playCard };

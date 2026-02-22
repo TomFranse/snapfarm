@@ -7,22 +7,28 @@
 import type {
   CardVariables,
   EffectTuple,
+  EffectDirection,
   GameCard,
+  GlobalLimitsForCard,
+  PlantForCard,
   Slot,
 } from "@features/card-game/types/cardGame.types";
 
-const VARIABLE_COUNT = 7;
+const VARIABLE_COUNT = 5;
 const EFFECT_DELTA = 2;
 const MAX_VARIABLE_VALUE = 10;
 const MIN_DURATION = 1;
 const MAX_DURATION = 10;
-const MAX_SCORE = 70;
+const MAX_SCORE = 50;
 
 export const BONUS_FIRST = 15;
 export const BONUS_SECOND = 8;
 export const BONUS_THIRD = 3;
 
+const PLANT_CARD_CHANCE = 0.2;
+
 let idCounter = 0;
+let plantIdCounter = 0;
 
 function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -89,6 +95,56 @@ export function createInitialBoard(): Slot[] {
 
 export function createInitialHand(): GameCard[] {
   return [generateCard(), generateCard(), generateCard()];
+}
+
+function optToScale(opt: number | null | undefined, gMin: string, gMax: string): number {
+  if (opt === null || opt === undefined) return 0;
+  const min = parseFloat(gMin);
+  const max = parseFloat(gMax);
+  if (min === max) return 5;
+  const value = ((opt - min) / (max - min)) * 10;
+  return Math.max(0, Math.min(10, Math.round(value)));
+}
+
+function deltaToEffect(delta: number | null | undefined): EffectDirection {
+  if (delta === null || delta === undefined || delta === 0) return "neutral";
+  return delta > 0 ? "up" : "down";
+}
+
+export function plantToGameCard(plant: PlantForCard, limits: GlobalLimitsForCard): GameCard {
+  plantIdCounter += 1;
+  const values = [
+    optToScale(plant.l_opt, limits.l_min, limits.l_max),
+    optToScale(plant.s_opt, limits.s_min, limits.s_max),
+    optToScale(plant.m_opt, limits.m_min, limits.m_max),
+    optToScale(plant.w_opt, limits.w_min, limits.w_max),
+    optToScale(plant.r_opt, limits.r_min, limits.r_max),
+  ] as CardVariables["values"];
+  const effects: EffectTuple = [
+    deltaToEffect(plant.effects?.delta_l),
+    deltaToEffect(plant.effects?.delta_s),
+    deltaToEffect(plant.effects?.delta_m),
+    deltaToEffect(plant.effects?.delta_w),
+    deltaToEffect(plant.effects?.delta_r),
+  ];
+  return {
+    id: `plant-${plant.id}-${plantIdCounter}`,
+    variables: { values },
+    effects,
+    duration: randomInt(MIN_DURATION, MAX_DURATION),
+  };
+}
+
+export function generateCardOrPlantCard(
+  plants: PlantForCard[],
+  limits: GlobalLimitsForCard,
+  chance: number = PLANT_CARD_CHANCE
+): GameCard {
+  if (plants.length === 0 || Math.random() >= chance) {
+    return generateCard();
+  }
+  const plant = plants[Math.floor(Math.random() * plants.length)];
+  return plantToGameCard(plant, limits);
 }
 
 export function applyAdjacentEffects(
