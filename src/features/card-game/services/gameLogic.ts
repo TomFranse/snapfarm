@@ -5,6 +5,7 @@
  */
 
 import type {
+  AppliedEffectDeltas,
   CardVariables,
   EffectTuple,
   EffectDirection,
@@ -25,7 +26,7 @@ export const BONUS_FIRST = 15;
 export const BONUS_SECOND = 8;
 export const BONUS_THIRD = 3;
 
-const PLANT_CARD_CHANCE = 0.2;
+const PLANT_CARD_CHANCE = 0.5;
 
 let idCounter = 0;
 let plantIdCounter = 0;
@@ -83,6 +84,30 @@ const ADJACENCY: Record<number, number[]> = {
 
 export function getAdjacentSlotIndices(slotIndex: number): number[] {
   return ADJACENCY[slotIndex] ?? [];
+}
+
+function applyEffectsToSlot(
+  values: CardVariables["values"],
+  effects: EffectTuple
+): { values: CardVariables["values"]; deltas: number[] } {
+  const newValues = [...values] as CardVariables["values"];
+  const slotDeltas: number[] = [];
+  for (let i = 0; i < VARIABLE_COUNT; i += 1) {
+    const dir = effects[i];
+    const before = values[i];
+    if (dir === "up") {
+      const after = Math.min(MAX_VARIABLE_VALUE, before + EFFECT_DELTA);
+      newValues[i] = after;
+      slotDeltas.push(after - before);
+    } else if (dir === "down") {
+      const after = Math.max(0, before - EFFECT_DELTA);
+      newValues[i] = after;
+      slotDeltas.push(after - before);
+    } else {
+      slotDeltas.push(0);
+    }
+  }
+  return { values: newValues, deltas: slotDeltas };
 }
 
 export function createInitialBoard(): Slot[] {
@@ -147,23 +172,41 @@ export function generateCardOrPlantCard(
   return plantToGameCard(plant, limits);
 }
 
+export interface ApplyEffectsResult {
+  board: Slot[];
+  deltas: AppliedEffectDeltas;
+}
+
 export function applyAdjacentEffects(
   board: Slot[],
   placedSlotIndex: number,
   effects: EffectTuple
-): Slot[] {
+): ApplyEffectsResult {
   const adjacentIndices = getAdjacentSlotIndices(placedSlotIndex);
-  return board.map((slot, index) => {
+  const deltas: AppliedEffectDeltas = {};
+
+  const newBoard = board.map((slot, index) => {
     if (!adjacentIndices.includes(index)) return slot;
+    const { values: newValues, deltas: slotDeltas } = applyEffectsToSlot(
+      slot.variables.values,
+      effects
+    );
+    deltas[index] = slotDeltas;
+    return { ...slot, variables: { values: newValues } };
+  });
+
+  return { board: newBoard, deltas };
+}
+
+export function revertAdjacentEffects(board: Slot[], deltas: AppliedEffectDeltas): Slot[] {
+  return board.map((slot, index) => {
+    const slotDeltas = deltas[index];
+    if (!slotDeltas) return slot;
 
     const newValues = [...slot.variables.values] as CardVariables["values"];
     for (let i = 0; i < VARIABLE_COUNT; i += 1) {
-      const dir = effects[i];
-      if (dir === "up") {
-        newValues[i] = Math.min(MAX_VARIABLE_VALUE, newValues[i] + EFFECT_DELTA);
-      } else if (dir === "down") {
-        newValues[i] = Math.max(0, newValues[i] - EFFECT_DELTA);
-      }
+      const d = slotDeltas[i] ?? 0;
+      newValues[i] = Math.max(0, Math.min(MAX_VARIABLE_VALUE, newValues[i] - d));
     }
     return { ...slot, variables: { values: newValues } };
   });

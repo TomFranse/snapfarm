@@ -5,7 +5,12 @@
  */
 
 import { useState, useCallback, useEffect } from "react";
-import type { GameCard, Slot, ScorePopupState } from "@features/card-game/types/cardGame.types";
+import type {
+  AppliedEffectDeltas,
+  GameCard,
+  Slot,
+  ScorePopupState,
+} from "@features/card-game/types/cardGame.types";
 import type { GlobalLimitsForCard, PlantForCard } from "@features/card-game/types/cardGame.types";
 import { DEFAULT_GLOBAL_LIMITS } from "@features/plants/types/globalLimitsDefaults";
 import {
@@ -14,6 +19,7 @@ import {
   generateCardOrPlantCard,
   calculateScore,
   applyAdjacentEffects,
+  revertAdjacentEffects,
   getAllPlacementScores,
   assignRanksWithTies,
   getBonusForRank,
@@ -75,13 +81,33 @@ export function useGameState(
         let nextBoard = prevBoard.map((s, i) =>
           i === slotIndex ? { ...s, card: { ...card }, variables: s.variables } : { ...s }
         );
-        nextBoard = applyAdjacentEffects(nextBoard, slotIndex, card.effects);
+        const { board: afterEffects, deltas } = applyAdjacentEffects(
+          nextBoard,
+          slotIndex,
+          card.effects
+        );
+        nextBoard = afterEffects.map((s, i) => {
+          if (i !== slotIndex || s.card === null) return s;
+          const placedCard = { ...s.card, appliedEffectDeltas: deltas };
+          return { ...s, card: placedCard };
+        });
+
+        const toRevert: AppliedEffectDeltas[] = [];
         nextBoard = nextBoard.map((s) => {
           if (s.card === null) return s;
           const newDuration = s.card.duration - 1;
-          if (newDuration <= 0) return { ...s, card: null };
+          if (newDuration <= 0) {
+            if (s.card.appliedEffectDeltas) {
+              toRevert.push(s.card.appliedEffectDeltas);
+            }
+            return { ...s, card: null };
+          }
           return { ...s, card: { ...s.card, duration: newDuration } };
         });
+
+        for (const deltasToRevert of toRevert) {
+          nextBoard = revertAdjacentEffects(nextBoard, deltasToRevert);
+        }
         return nextBoard;
       });
 

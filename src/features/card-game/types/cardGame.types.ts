@@ -18,11 +18,16 @@ export type EffectTuple = [
   EffectDirection,
 ];
 
+/** Deltas actually applied to adjacent slots (per variable). Used to revert on card removal. */
+export type AppliedEffectDeltas = Record<number, number[]>;
+
 export interface GameCard {
   id: string;
   variables: CardVariables;
   effects: EffectTuple;
   duration: number;
+  /** Stored when placed; used to revert effects when card is removed. */
+  appliedEffectDeltas?: AppliedEffectDeltas;
 }
 
 export interface Slot {

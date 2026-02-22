@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-02-22
+
+### Added
+
+- **Card game radar chart**: Variable values displayed as spiderweb/radar chart instead of pip rows
+  - Pentagon layout: 5 axes (Light, Soil, Moisture, Wind, Pest), 0–10 scale from center to edge
+  - Single-color filled polygon (matches icon color)
+  - Effect chevrons at perimeter: up = outward (more), down = inward (less)
+  - Chevron colors: Light/Soil/Moisture up = green, Wind/Pest up = red (inverted semantics)
+- **Effect revert on card removal**: When a card's duration reaches 0, its effects on adjacent slots are reverted
+  - Stores actual deltas applied (handles clamp edge case: e.g. 9+2→10 only reverts −1, not −2)
+
+### Changed
+
+- **VariablePips**: Replaced pip grid with radar chart; same props interface (GameCard, CardSlot unchanged)
+
 ## [0.20.0] - 2026-02-22
 
 ### Added

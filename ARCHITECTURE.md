@@ -23,7 +23,7 @@ src/
 │   │   ├── services/    # Pure functions, API calls
 │   │   └── types/       # TypeScript types for feature
 │   ├── card-game/
-│   │   ├── components/  # Game board, cards, slots, hand, pips
+│   │   ├── components/  # Game board, cards, slots, hand, radar chart
 │   │   ├── context/     # GameProvider (app-level game state for score in BottomNav)
 │   │   ├── hooks/       # Game state, card interaction
 │   │   ├── services/    # Game logic (generate, score, adjacency)

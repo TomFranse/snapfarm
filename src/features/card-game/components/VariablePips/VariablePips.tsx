@@ -1,61 +1,177 @@
 /**
- * VariablePips - Renders 7 variables as 5 pips each (half/full fill)
+ * VariablePips - Renders 5 variables as a spiderweb/radar chart
  *
- * Uses CSS Grid for exact positioning - identical layout for hand cards,
- * board cards, and empty slots.
- *
- * Optional effects column: when `effects` is provided, renders a column of
- * indicators (up/down/neutral) to the right of the pip grid.
- *
- * Colors and dimensions from theme palette.game.
+ * Pentagon layout: 5 axes (L, S, M, W, R), value 0–10 from center to edge.
+ * Single-color filled polygon. Effects shown as chevrons at perimeter:
+ * up = outward, down = inward. Icons at outer edge.
  */
 
 import { Box, useTheme } from "@mui/material";
-import { alpha } from "@mui/material/styles";
-import CropSquareIcon from "@mui/icons-material/CropSquare";
+import { CARD_ENV_CONFIG } from "@features/plants/constants/envConfig";
 import type { CardVariables, EffectTuple } from "@features/card-game/types/cardGame.types";
 
-const ROWS = 7;
-const COLS = 5;
+const AXIS_COUNT = 5;
+const DEG_PER_AXIS = 360 / AXIS_COUNT;
+const START_ANGLE = -90;
+const VIEW_SIZE = 100;
+const CENTER = VIEW_SIZE / 2;
+const MAX_RADIUS = 42;
+const ICON_RADIUS = 46;
+const CHEVRON_RADIUS = 34;
+const CHEVRON_SIZE = 5;
 
-const EFFECT_COLOR_UP = "#54B54A";
-const EFFECT_COLOR_DOWN = "#BA1A1A";
+function degToRad(deg: number): number {
+  return (deg * Math.PI) / 180;
+}
 
-function ArrowFromPublic({
-  direction,
-  size,
-  color,
+function getAxisAngle(index: number): number {
+  return START_ANGLE + index * DEG_PER_AXIS;
+}
+
+function polarToCartesian(opts: {
+  cx: number;
+  cy: number;
+  r: number;
+  angleDeg: number;
+}): [number, number] {
+  const { cx, cy, r, angleDeg } = opts;
+  const rad = degToRad(angleDeg);
+  return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+}
+
+function getPolygonPoints(values: CardVariables["values"]): string {
+  return values
+    .map((v, i) => {
+      const clamped = Math.max(0, Math.min(10, v));
+      const r = (clamped / 10) * MAX_RADIUS;
+      const [x, y] = polarToCartesian({
+        cx: CENTER,
+        cy: CENTER,
+        r,
+        angleDeg: getAxisAngle(i),
+      });
+      return `${x},${y}`;
+    })
+    .join(" ");
+}
+
+function getChevronColor(
+  dir: "up" | "down",
+  invertedEffect: boolean | undefined,
+  theme: { palette: { success: { main: string }; error: { main: string } } }
+): string {
+  const upColor = invertedEffect === true ? theme.palette.error.main : theme.palette.success.main;
+  const downColor = invertedEffect === true ? theme.palette.success.main : theme.palette.error.main;
+  return dir === "up" ? upColor : downColor;
+}
+
+function RadarSvgContent({
+  points,
+  effects,
+  polygonFill,
+  polygonOpacity,
+  theme,
 }: {
-  direction: "up" | "down";
-  size: number;
-  color: string;
+  points: string;
+  effects?: EffectTuple;
+  polygonFill: string;
+  polygonOpacity: number;
+  theme: { palette: { success: { main: string }; error: { main: string } } };
 }) {
-  const base = import.meta.env.BASE_URL;
-  const src = direction === "up" ? `${base}arrow-up.svg` : `${base}arrow-down.svg`;
   return (
     <Box
-      component="span"
+      component="svg"
+      viewBox={`0 0 ${VIEW_SIZE} ${VIEW_SIZE}`}
       sx={{
-        display: "inline-block",
-        width: size,
-        height: size,
-        backgroundColor: color,
-        mask: `url(${src}) center / contain no-repeat`,
-        WebkitMask: `url(${src}) center / contain no-repeat`,
+        width: "100%",
+        maxWidth: 96,
+        height: "auto",
+        aspectRatio: "1",
       }}
-    />
+      aria-label="Variable radar chart"
+    >
+      <polygon points={points} fill={polygonFill} fillOpacity={polygonOpacity} />
+      {CARD_ENV_CONFIG.map(({ key, invertedEffect }, i) => {
+        const angle = getAxisAngle(i);
+        const [chevronX, chevronY] = polarToCartesian({
+          cx: CENTER,
+          cy: CENTER,
+          r: CHEVRON_RADIUS,
+          angleDeg: angle,
+        });
+        const dir = effects?.[i];
+        const chevronColor =
+          dir === "up" || dir === "down"
+            ? getChevronColor(dir, invertedEffect, theme)
+            : "transparent";
+        const chevronRotation = dir === "up" ? angle + 180 : dir === "down" ? angle : 0;
+
+        return (
+          dir &&
+          dir !== "neutral" && (
+            <g
+              key={key}
+              transform={`translate(${chevronX}, ${chevronY}) rotate(${chevronRotation})`}
+            >
+              <path
+                d={`M ${CHEVRON_SIZE},-${CHEVRON_SIZE / 2} L 0,0 L ${CHEVRON_SIZE},${CHEVRON_SIZE / 2}`}
+                fill="none"
+                stroke={chevronColor}
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </g>
+          )
+        );
+      })}
+    </Box>
   );
 }
 
-function getPipFills(value: number): (0 | 1 | 2)[] {
-  const pips: (0 | 1 | 2)[] = [0, 0, 0, 0, 0];
-  let remaining = Math.max(0, Math.min(10, value));
-  for (let i = 0; i < 5 && remaining > 0; i += 1) {
-    const fill = Math.min(2, remaining) as 0 | 1 | 2;
-    pips[i] = fill;
-    remaining -= fill;
-  }
-  return pips;
+function IconOverlay() {
+  return (
+    <Box
+      sx={{
+        position: "absolute",
+        inset: 0,
+        pointerEvents: "none",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Box sx={{ position: "relative", width: "100%", maxWidth: 96, aspectRatio: "1" }}>
+        {CARD_ENV_CONFIG.map(({ key, Icon, label }, i) => {
+          const [x, y] = polarToCartesian({
+            cx: CENTER,
+            cy: CENTER,
+            r: ICON_RADIUS,
+            angleDeg: getAxisAngle(i),
+          });
+          const pctX = (x / VIEW_SIZE) * 100;
+          const pctY = (y / VIEW_SIZE) * 100;
+          return (
+            <Box
+              key={key}
+              sx={{
+                position: "absolute",
+                left: `${pctX}%`,
+                top: `${pctY}%`,
+                transform: "translate(-50%, -50%)",
+                color: "text.secondary",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Icon sx={(t) => ({ fontSize: t.typography.body2.fontSize })} aria-label={label} />
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
+  );
 }
 
 export interface VariablePipsProps {
@@ -65,103 +181,28 @@ export interface VariablePipsProps {
 
 export function VariablePips({ variables, effects }: VariablePipsProps) {
   const theme = useTheme();
-  const { variableColors, pipEmpty, pipSize, pipGap } = theme.palette.game;
-
-  const cells = variables.values.flatMap((value, varIndex) => {
-    const fills = getPipFills(value);
-    const color = variableColors[varIndex] ?? variableColors[0];
-    return fills.map((fill, pipIndex) => ({ fill, color, key: `${varIndex}-${pipIndex}` }));
-  });
-
-  const pipGrid = (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: `repeat(${COLS}, ${pipSize}px)`,
-        gridTemplateRows: `repeat(${ROWS}, ${pipSize}px)`,
-        gap: pipGap,
-        width: "fit-content",
-      }}
-    >
-      {cells.map(({ fill, color, key }) => (
-        <Box
-          key={key}
-          sx={{
-            width: pipSize,
-            height: pipSize,
-            borderRadius: "50%",
-            backgroundColor: fill === 0 ? pipEmpty : fill === 1 ? alpha(color, 0.5) : color,
-          }}
-        />
-      ))}
-    </Box>
-  );
-
-  if (!effects) {
-    return pipGrid;
-  }
+  const polygonFill = theme.palette.text.secondary;
+  const points = getPolygonPoints(variables.values);
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "row", alignItems: "flex-start", gap: pipGap }}>
-      {pipGrid}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: `${pipSize}px`,
-          gridTemplateRows: `repeat(${ROWS}, ${pipSize}px)`,
-          gap: pipGap,
-        }}
-      >
-        {effects.map((dir, i) => {
-          if (dir === "up") {
-            return (
-              <Box
-                key={i}
-                sx={{
-                  width: pipSize,
-                  height: pipSize,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <ArrowFromPublic direction="up" size={pipSize} color={EFFECT_COLOR_UP} />
-              </Box>
-            );
-          }
-          if (dir === "down") {
-            return (
-              <Box
-                key={i}
-                sx={{
-                  width: pipSize,
-                  height: pipSize,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <ArrowFromPublic direction="down" size={pipSize} color={EFFECT_COLOR_DOWN} />
-              </Box>
-            );
-          }
-          return (
-            <Box
-              key={i}
-              sx={{
-                width: pipSize,
-                height: pipSize,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "text.secondary",
-              }}
-            >
-              <CropSquareIcon sx={{ fontSize: pipSize }} />
-            </Box>
-          );
-        })}
-      </Box>
+    <Box
+      sx={{
+        position: "relative",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+        overflow: "hidden",
+      }}
+    >
+      <RadarSvgContent
+        points={points}
+        effects={effects}
+        polygonFill={polygonFill}
+        polygonOpacity={0.4}
+        theme={theme}
+      />
+      <IconOverlay />
     </Box>
   );
 }
