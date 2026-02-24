@@ -51,7 +51,8 @@ export function useGameState(
       if (!card || !slot || slot.card !== null) return false;
 
       const score = calculateScore(card.variables, slot.variables);
-      const placements = getAllPlacementScores(hand, board);
+      // Rank bonus is based on this card's own best/worst slot options only.
+      const placements = getAllPlacementScores([card], board);
       const ranks = assignRanksWithTies(placements);
       const rank = ranks.get(`${cardId}-${slotIndex}`);
       const bonus = getBonusForRank(rank);

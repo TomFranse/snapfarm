@@ -11,6 +11,7 @@ import type {
   EffectDirection,
   GameCard,
   GlobalLimitsForCard,
+  PlacementDebugData,
   PlantForCard,
   Slot,
 } from "@features/card-game/types/cardGame.types";
@@ -271,4 +272,26 @@ export function getBonusForRank(rank: 1 | 2 | 3 | undefined): number {
   if (rank === 2) return BONUS_SECOND;
   if (rank === 3) return BONUS_THIRD;
   return 0;
+}
+
+export type { PlacementDebugData };
+
+export function getPlacementDataForCard(
+  cardId: string,
+  hand: GameCard[],
+  board: Slot[]
+): Map<number, PlacementDebugData> {
+  const allPlacements = getAllPlacementScores(hand, board);
+  const forCard = allPlacements.filter((p) => p.cardId === cardId);
+  if (forCard.length === 0) return new Map();
+
+  // Rank only against this card's own slot options (not other cards in hand).
+  const ranks = assignRanksWithTies(forCard);
+  const result = new Map<number, PlacementDebugData>();
+
+  for (const p of forCard) {
+    const rank = ranks.get(`${p.cardId}-${p.slotIndex}`) ?? null;
+    result.set(p.slotIndex, { score: p.score, rank });
+  }
+  return result;
 }

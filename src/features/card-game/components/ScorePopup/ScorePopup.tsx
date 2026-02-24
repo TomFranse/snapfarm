@@ -40,7 +40,7 @@ function getScoreColor(score: number, colors: { low: string; mid: string; high: 
 
 const DEFAULT_SCORE_COLORS = { low: "#BA1A1A", mid: "#B5754A", high: "#E8B923" };
 
-const RANK_LABELS: Record<1 | 2 | 3, string> = {
+export const RANK_LABELS: Record<1 | 2 | 3, string> = {
   1: "Best!",
   2: "2nd best!",
   3: "3rd best!",

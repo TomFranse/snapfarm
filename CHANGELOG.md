@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-02-22
+
+### Added
+
+- **Placement debug overlay**: Shows score and rank for selected/dragged card when hovering over slot options
+- **Debug toggle**: New `DEBUG_SHOW_PLACEMENT_SCORES` in `src/config/debug.ts` (set `false` by default)
+
+### Changed
+
+- **Per-card ranking**: Ranking/bonus now computed per-card slot options only (not across all hand cards)
+
 ## [0.21.0] - 2026-02-22
 
 ### Added

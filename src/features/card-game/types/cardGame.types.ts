@@ -49,6 +49,12 @@ export interface ScorePopupState {
   rank?: 1 | 2 | 3;
 }
 
+/** Debug overlay: score and rank for a single slot option. */
+export interface PlacementDebugData {
+  score: number;
+  rank: 1 | 2 | 3 | null;
+}
+
 /** Minimal plant shape for card conversion. Avoids coupling to plants feature. */
 export interface PlantForCard {
   id: string;
