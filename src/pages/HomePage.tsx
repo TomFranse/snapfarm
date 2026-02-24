@@ -23,7 +23,7 @@ function HomePageContent() {
 
   return (
     <Box
-      sx={{
+      sx={(theme) => ({
         width: "100%",
         height: "100%",
         display: "grid",
@@ -32,11 +32,26 @@ function HomePageContent() {
         alignItems: "center",
         rowGap: "var(--game-gap, 16px)",
         overflow: "hidden",
-        "--game-gap": { xs: "8px", sm: "10px", md: "12px", lg: "16px" },
-        "--card-min": { xs: "64px", sm: "72px", md: "84px", lg: "96px" },
-        "--card-max": { xs: "84px", sm: "96px", md: "112px", lg: "120px" },
+        "--game-gap": theme.layout.cardGame.gameGap.xs,
+        "--card-min": theme.layout.cardGame.cardMin.xs,
+        "--card-max": theme.layout.cardGame.cardMax.xs,
         "--card-size": "clamp(var(--card-min), min(28dvw, 15dvh), var(--card-max))",
-      }}
+        [theme.breakpoints.up("sm")]: {
+          "--game-gap": theme.layout.cardGame.gameGap.sm,
+          "--card-min": theme.layout.cardGame.cardMin.sm,
+          "--card-max": theme.layout.cardGame.cardMax.sm,
+        },
+        [theme.breakpoints.up("md")]: {
+          "--game-gap": theme.layout.cardGame.gameGap.md,
+          "--card-min": theme.layout.cardGame.cardMin.md,
+          "--card-max": theme.layout.cardGame.cardMax.md,
+        },
+        [theme.breakpoints.up("lg")]: {
+          "--game-gap": theme.layout.cardGame.gameGap.lg,
+          "--card-min": theme.layout.cardGame.cardMin.lg,
+          "--card-max": theme.layout.cardGame.cardMax.lg,
+        },
+      })}
     >
       <Box sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
         <GameBoard

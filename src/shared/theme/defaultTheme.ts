@@ -49,6 +49,12 @@ const COLORS = {
   },
 } as const;
 
+const CARD_GAME_LAYOUT = {
+  gameGap: { xs: "8px", sm: "10px", md: "12px", lg: "16px" },
+  cardMin: { xs: "64px", sm: "72px", md: "84px", lg: "96px" },
+  cardMax: { xs: "84px", sm: "96px", md: "112px", lg: "120px" },
+} as const;
+
 export const defaultThemeOptions: ThemeOptions = {
   palette: {
     mode: "dark",
@@ -120,6 +126,13 @@ export const defaultThemeOptions: ThemeOptions = {
     // Customize fontSize to 0.65rem for small chips
     caption: {
       fontSize: "0.65rem",
+    },
+  },
+  layout: {
+    cardGame: {
+      gameGap: { ...CARD_GAME_LAYOUT.gameGap },
+      cardMin: { ...CARD_GAME_LAYOUT.cardMin },
+      cardMax: { ...CARD_GAME_LAYOUT.cardMax },
     },
   },
   components: {
@@ -297,6 +310,24 @@ export const defaultThemeOptions: ThemeOptions = {
 export const defaultTheme = createTheme(defaultThemeOptions);
 
 declare module "@mui/material/styles" {
+  interface Theme {
+    layout: {
+      cardGame: {
+        gameGap: Record<"xs" | "sm" | "md" | "lg", string>;
+        cardMin: Record<"xs" | "sm" | "md" | "lg", string>;
+        cardMax: Record<"xs" | "sm" | "md" | "lg", string>;
+      };
+    };
+  }
+  interface ThemeOptions {
+    layout?: {
+      cardGame?: {
+        gameGap?: Partial<Record<"xs" | "sm" | "md" | "lg", string>>;
+        cardMin?: Partial<Record<"xs" | "sm" | "md" | "lg", string>>;
+        cardMax?: Partial<Record<"xs" | "sm" | "md" | "lg", string>>;
+      };
+    };
+  }
   interface Palette {
     game: {
       variableColors: string[];

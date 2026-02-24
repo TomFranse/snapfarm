@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.2] - 2026-02-24
+
+### Changed
+
+- **Responsive card layout tokens centralized**: Moved card-game breakpoint sizing values into `theme.layout.cardGame` and wired HomePage layout variables to use theme tokens.
+- **Card rendering consistency**: Updated card sizing to use aspect-ratio-based width variables so board and hand cards scale consistently across breakpoints.
+
+### Fixed
+
+- **Drag overlay card sizing**: Drag ghost now uses the dragged card's measured rendered width so overlay and in-hand card sizes match.
+- **DnD drag-start stability**: Replaced brittle drag node lookup with a safe `data-card-id` DOM query fallback to prevent drag start runtime errors.
+- **Variable pips env config import**: Corrected `VariablePips` import path for card environment config resolution.
+
 ## [0.22.1] - 2026-02-22
 
 ### Added

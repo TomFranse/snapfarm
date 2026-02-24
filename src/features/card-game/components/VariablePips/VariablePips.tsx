@@ -7,7 +7,7 @@
  */
 
 import { Box, useTheme } from "@mui/material";
-import { CARD_ENV_CONFIG } from "@features/plants/constants/envConfig";
+import { CARD_ENV_CONFIG } from "@features/plants/types/envConfig";
 import type { CardVariables, EffectTuple } from "@features/card-game/types/cardGame.types";
 
 const AXIS_COUNT = 5;
