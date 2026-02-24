@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-02-24
+
+### Added
+
+- **Directional plant radar fill**: Plant card radar blips now use a five-source directional radial gradient mapped to Light, Soil, Moisture, Wind, and Pest colors for angle-specific tinting.
+- **Per-icon effect indicators**: Replaced in-chart chevrons with up/down triangle badges appended to each radar stat icon while preserving existing effect color semantics (including inverted Wind/Pest behavior).
+
+### Changed
+
+- **Radar icon readability styling**: Added dark drop shadows to radar stat icons and effect badges to improve contrast on card art backgrounds.
+- **Radar icon clipping behavior**: VariablePips container now allows overflow so icon edges and shadows are not cropped on cards or slots.
+
 ## [0.22.2] - 2026-02-24
 
 ### Changed

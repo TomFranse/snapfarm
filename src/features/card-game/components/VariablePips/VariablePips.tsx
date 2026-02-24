@@ -2,12 +2,13 @@
  * VariablePips - Renders 5 variables as a spiderweb/radar chart
  *
  * Pentagon layout: 5 axes (L, S, M, W, R), value 0–10 from center to edge.
- * Single-color filled polygon. Effects shown as chevrons at perimeter:
- * up = outward, down = inward. Icons at outer edge.
+ * Plant cards can use directional multi-axis fills. Effects are shown as
+ * up/down triangle badges next to the axis icons.
  */
 
+import { useId } from "react";
 import { Box, useTheme } from "@mui/material";
-import { CARD_ENV_CONFIG } from "@features/plants/types/envConfig";
+import { CARD_ENV_CONFIG, ENV_COLORS } from "@features/plants/types/envConfig";
 import type { CardVariables, EffectTuple } from "@features/card-game/types/cardGame.types";
 
 const AXIS_COUNT = 5;
@@ -17,8 +18,7 @@ const VIEW_SIZE = 100;
 const CENTER = VIEW_SIZE / 2;
 const MAX_RADIUS = 42;
 const ICON_RADIUS = 46;
-const CHEVRON_RADIUS = 34;
-const CHEVRON_SIZE = 5;
+const ICON_DROP_SHADOW = "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35))";
 
 function degToRad(deg: number): number {
   return (deg * Math.PI) / 180;
@@ -55,7 +55,7 @@ function getPolygonPoints(values: CardVariables["values"]): string {
     .join(" ");
 }
 
-function getChevronColor(
+function getEffectIndicatorColor(
   dir: "up" | "down",
   invertedEffect: boolean | undefined,
   theme: { palette: { success: { main: string }; error: { main: string } } }
@@ -67,17 +67,20 @@ function getChevronColor(
 
 function RadarSvgContent({
   points,
-  effects,
   polygonFill,
   polygonOpacity,
-  theme,
+  useDirectionalGradient,
+  axisColors,
 }: {
   points: string;
-  effects?: EffectTuple;
   polygonFill: string;
   polygonOpacity: number;
-  theme: { palette: { success: { main: string }; error: { main: string } } };
+  useDirectionalGradient: boolean;
+  axisColors: string[];
 }) {
+  const gradientBaseId = useId().replace(/:/g, "");
+  const clipPathId = `${gradientBaseId}-radar-clip`;
+
   return (
     <Box
       component="svg"
@@ -90,46 +93,64 @@ function RadarSvgContent({
       }}
       aria-label="Variable radar chart"
     >
-      <polygon points={points} fill={polygonFill} fillOpacity={polygonOpacity} />
-      {CARD_ENV_CONFIG.map(({ key, invertedEffect }, i) => {
-        const angle = getAxisAngle(i);
-        const [chevronX, chevronY] = polarToCartesian({
-          cx: CENTER,
-          cy: CENTER,
-          r: CHEVRON_RADIUS,
-          angleDeg: angle,
-        });
-        const dir = effects?.[i];
-        const chevronColor =
-          dir === "up" || dir === "down"
-            ? getChevronColor(dir, invertedEffect, theme)
-            : "transparent";
-        const chevronRotation = dir === "up" ? angle + 180 : dir === "down" ? angle : 0;
+      {useDirectionalGradient ? (
+        <>
+          <defs>
+            <clipPath id={clipPathId}>
+              <polygon points={points} />
+            </clipPath>
+            {axisColors.map((color, i) => {
+              const [cx, cy] = polarToCartesian({
+                cx: CENTER,
+                cy: CENTER,
+                r: MAX_RADIUS,
+                angleDeg: getAxisAngle(i),
+              });
+              return (
+                <radialGradient
+                  key={`${gradientBaseId}-axis-${CARD_ENV_CONFIG[i]?.key ?? i}`}
+                  id={`${gradientBaseId}-axis-${i}`}
+                  gradientUnits="userSpaceOnUse"
+                  cx={cx}
+                  cy={cy}
+                  r={MAX_RADIUS * 1.2}
+                >
+                  <stop offset="0%" stopColor={color} stopOpacity={1} />
+                  <stop offset="45%" stopColor={color} stopOpacity={0.45} />
+                  <stop offset="100%" stopColor={color} stopOpacity={0} />
+                </radialGradient>
+              );
+            })}
+          </defs>
 
-        return (
-          dir &&
-          dir !== "neutral" && (
-            <g
-              key={key}
-              transform={`translate(${chevronX}, ${chevronY}) rotate(${chevronRotation})`}
-            >
-              <path
-                d={`M ${CHEVRON_SIZE},-${CHEVRON_SIZE / 2} L 0,0 L ${CHEVRON_SIZE},${CHEVRON_SIZE / 2}`}
-                fill="none"
-                stroke={chevronColor}
-                strokeWidth={1.5}
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          <g clipPath={`url(#${clipPathId})`}>
+            <polygon points={points} fill={polygonFill} fillOpacity={polygonOpacity} />
+            {axisColors.map((_, i) => (
+              <rect
+                key={`${gradientBaseId}-overlay-${i}`}
+                x={0}
+                y={0}
+                width={VIEW_SIZE}
+                height={VIEW_SIZE}
+                fill={`url(#${gradientBaseId}-axis-${i})`}
               />
-            </g>
-          )
-        );
-      })}
+            ))}
+          </g>
+        </>
+      ) : (
+        <polygon points={points} fill={polygonFill} fillOpacity={polygonOpacity} />
+      )}
     </Box>
   );
 }
 
-function IconOverlay() {
+function IconOverlay({
+  effects,
+  theme,
+}: {
+  effects?: EffectTuple;
+  theme: { palette: { success: { main: string }; error: { main: string } } };
+}) {
   return (
     <Box
       sx={{
@@ -142,13 +163,19 @@ function IconOverlay() {
       }}
     >
       <Box sx={{ position: "relative", width: "100%", maxWidth: 96, aspectRatio: "1" }}>
-        {CARD_ENV_CONFIG.map(({ key, Icon, label }, i) => {
+        {CARD_ENV_CONFIG.map(({ key, Icon, label, invertedEffect }, i) => {
           const [x, y] = polarToCartesian({
             cx: CENTER,
             cy: CENTER,
             r: ICON_RADIUS,
             angleDeg: getAxisAngle(i),
           });
+          const dir = effects?.[i];
+          const effectColor =
+            dir === "up" || dir === "down"
+              ? getEffectIndicatorColor(dir, invertedEffect, theme)
+              : undefined;
+          const effectSymbol = dir === "up" ? "▲" : dir === "down" ? "▼" : null;
           const pctX = (x / VIEW_SIZE) * 100;
           const pctY = (y / VIEW_SIZE) * 100;
           return (
@@ -160,12 +187,37 @@ function IconOverlay() {
                 top: `${pctY}%`,
                 transform: "translate(-50%, -50%)",
                 color: "text.secondary",
+                filter: ICON_DROP_SHADOW,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <Icon sx={(t) => ({ fontSize: t.typography.body2.fontSize })} aria-label={label} />
+              <Icon
+                sx={(t) => ({
+                  fontSize: t.typography.body2.fontSize,
+                  filter: ICON_DROP_SHADOW,
+                })}
+                aria-label={label}
+              />
+              {effectSymbol && (
+                <Box
+                  component="span"
+                  sx={{
+                    position: "absolute",
+                    right: "-0.5em",
+                    bottom: "-0.45em",
+                    fontSize: "0.56rem",
+                    fontWeight: 800,
+                    lineHeight: 1,
+                    color: effectColor,
+                    textShadow: "0 1px 2px rgba(0, 0, 0, 0.8)",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {effectSymbol}
+                </Box>
+              )}
             </Box>
           );
         })}
@@ -177,11 +229,19 @@ function IconOverlay() {
 export interface VariablePipsProps {
   variables: CardVariables;
   effects?: EffectTuple;
+  useDirectionalGradient?: boolean;
 }
 
-export function VariablePips({ variables, effects }: VariablePipsProps) {
+export function VariablePips({
+  variables,
+  effects,
+  useDirectionalGradient = false,
+}: VariablePipsProps) {
   const theme = useTheme();
   const polygonFill = theme.palette.text.secondary;
+  const axisColors = CARD_ENV_CONFIG.map(
+    ({ key }, i) => ENV_COLORS[key] ?? theme.palette.game.variableColors[i] ?? polygonFill
+  );
   const points = getPolygonPoints(variables.values);
 
   return (
@@ -192,17 +252,17 @@ export function VariablePips({ variables, effects }: VariablePipsProps) {
         justifyContent: "center",
         alignItems: "center",
         width: "100%",
-        overflow: "hidden",
+        overflow: "visible",
       }}
     >
       <RadarSvgContent
         points={points}
-        effects={effects}
         polygonFill={polygonFill}
-        polygonOpacity={0.4}
-        theme={theme}
+        polygonOpacity={useDirectionalGradient ? 1 : 0.4}
+        useDirectionalGradient={useDirectionalGradient}
+        axisColors={axisColors}
       />
-      <IconOverlay />
+      <IconOverlay effects={effects} theme={theme} />
     </Box>
   );
 }

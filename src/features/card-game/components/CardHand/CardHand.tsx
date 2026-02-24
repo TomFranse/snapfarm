@@ -9,10 +9,9 @@ import { GameCard as GameCardComponent } from "@features/card-game/components/Ga
 export interface CardHandProps {
   cards: GameCard[];
   selectedCardId: string | null;
-  onCardSelect: (cardId: string) => void;
 }
 
-export function CardHand({ cards, selectedCardId, onCardSelect }: CardHandProps) {
+export function CardHand({ cards, selectedCardId }: CardHandProps) {
   return (
     <Box sx={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
       <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
@@ -32,7 +31,6 @@ export function CardHand({ cards, selectedCardId, onCardSelect }: CardHandProps)
             card={card}
             selected={selectedCardId === card.id}
             draggable
-            onClick={onCardSelect}
           />
         ))}
       </Box>

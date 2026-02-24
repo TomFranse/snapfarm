@@ -12,7 +12,7 @@ import { DEBUG_SHOW_PLACEMENT_SCORES } from "@/config/debug";
 function HomePageContent() {
   const { board, hand, scorePopup, playCard } = useGameContext();
   const { activeId } = useActiveDragContext();
-  const interaction = useCardInteraction(playCard);
+  const interaction = useCardInteraction(playCard, hand);
 
   const focusedCardId = activeId ?? interaction.selectedCardId;
 
@@ -61,11 +61,7 @@ function HomePageContent() {
           placementData={placementData}
         />
       </Box>
-      <CardHand
-        cards={hand}
-        selectedCardId={interaction.selectedCardId}
-        onCardSelect={interaction.onCardSelect}
-      />
+      <CardHand cards={hand} selectedCardId={interaction.selectedCardId} />
     </Box>
   );
 }

@@ -15,27 +15,20 @@ export interface GameCardProps {
   card: GameCardType;
   selected?: boolean;
   draggable?: boolean;
-  onClick?: (cardId: string) => void;
   onBoard?: boolean;
 }
 
 function GameCardContent({
   card,
   selected = false,
-  onClick,
   durationBadge,
   imageUrl,
 }: {
   card: GameCardType;
   selected: boolean;
-  onClick?: (cardId: string) => void;
   durationBadge: React.ReactNode;
   imageUrl: string | null;
 }) {
-  const handleClick = () => {
-    if (onClick) onClick(card.id);
-  };
-
   const cardSx = imageUrl
     ? {
         backgroundImage: `url(${imageUrl})`,
@@ -53,13 +46,7 @@ function GameCardContent({
     : undefined;
 
   return (
-    <Card
-      variant="game-card"
-      selected={selected}
-      draggable={false}
-      onClick={handleClick}
-      sx={cardSx}
-    >
+    <Card variant="game-card" selected={selected} draggable={false} sx={cardSx}>
       {durationBadge}
       <Box
         sx={{
@@ -71,7 +58,11 @@ function GameCardContent({
           zIndex: 1,
         }}
       >
-        <VariablePips variables={card.variables} effects={card.effects} />
+        <VariablePips
+          variables={card.variables}
+          effects={card.effects}
+          useDirectionalGradient={Boolean(imageUrl)}
+        />
       </Box>
     </Card>
   );
@@ -81,7 +72,6 @@ export function GameCard({
   card,
   selected = false,
   draggable = true,
-  onClick,
   onBoard = false,
 }: GameCardProps) {
   const { plantCardImageUrls } = useGameContext();
@@ -138,9 +128,6 @@ export function GameCard({
       }}
       {...listeners}
       {...attributes}
-      onClick={() => {
-        if (!isDragging && onClick) onClick(card.id);
-      }}
     >
       <GameCardContent
         card={card}
