@@ -14,11 +14,18 @@ export interface CardHandProps {
 
 export function CardHand({ cards, selectedCardId, onCardSelect }: CardHandProps) {
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
       <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
         Your Hand
       </Typography>
-      <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, var(--card-size, 120px))",
+          gap: "var(--game-gap, 16px)",
+          width: "fit-content",
+        }}
+      >
         {cards.map((card) => (
           <GameCardComponent
             key={card.id}

@@ -130,6 +130,7 @@ export function GameCard({
   return (
     <Box
       ref={setNodeRef}
+      data-card-id={card.id}
       sx={{
         ...style,
         cursor: isDraggable ? "grab" : "default",

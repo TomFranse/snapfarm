@@ -35,7 +35,7 @@ export interface AppDndContextProps {
 export function AppDndContext({ children, onDragStart, onDragEnd }: AppDndContextProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
+      activationConstraint: { distance: 2 },
     }),
     useSensor(KeyboardSensor)
   );

@@ -5,16 +5,8 @@
 
 import { Box, Divider, Typography, useTheme } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import ThermostatIcon from "@mui/icons-material/Thermostat";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import GrassIcon from "@mui/icons-material/Grass";
-import GrainIcon from "@mui/icons-material/Grain";
-import WaterDropIcon from "@mui/icons-material/WaterDrop";
-import ScienceIcon from "@mui/icons-material/Science";
-import LandscapeIcon from "@mui/icons-material/Landscape";
-import AirIcon from "@mui/icons-material/Air";
-import BugReportIcon from "@mui/icons-material/BugReport";
 import type { Plant, GlobalLimits, PlantEffects } from "../../types/plants.types";
+import { ENV_COLORS, ENV_CONFIG } from "../../types/envConfig";
 
 const COLS = 5;
 const ARROW_SIZE = 12;
@@ -22,13 +14,7 @@ const ARROW_COL_WIDTH = 14;
 
 type EffectKey = keyof PlantEffects;
 
-function EffectArrow({
-  direction,
-  color,
-}: {
-  direction: "up" | "down";
-  color: string;
-}) {
+function EffectArrow({ direction, color }: { direction: "up" | "down"; color: string }) {
   const base = import.meta.env.BASE_URL;
   const src = direction === "up" ? `${base}arrow-up.svg` : `${base}arrow-down.svg`;
   return (
@@ -47,19 +33,6 @@ function EffectArrow({
   );
 }
 
-/** Semantic colors for each env variable */
-const ENV_COLORS: Record<string, string> = {
-  t: "#B5754A", // Temperature - warm orange
-  l: "#E8B923", // Light - yellow/gold
-  f: "#54B54A", // Fertility - green
-  p: "#8B7355", // Porosity - earth brown
-  m: "#4A8AB5", // Moisture - blue
-  a: "#AB4AB5", // Acidity - purple
-  s: "#6B4423", // Soil - dark earth brown
-  w: "#87CEEB", // Wind - sky blue
-  r: "#C45C4A", // Pest resistance - red/orange
-};
-
 /** Map variable key to effects delta key */
 const EFFECT_KEY_MAP: Partial<Record<string, EffectKey>> = {
   l: "delta_l",
@@ -72,82 +45,6 @@ const EFFECT_KEY_MAP: Partial<Record<string, EffectKey>> = {
   p: "delta_p",
   a: "delta_a",
 };
-
-/** Order: Basic: Light, Soil, Moisture, Wind, Pest | Advanced: Temperature, Fertility, Porosity, Acidity */
-const ENV_CONFIG = [
-  {
-    key: "l" as const,
-    optKey: "l_opt" as const,
-    minKey: "l_min" as const,
-    maxKey: "l_max" as const,
-    Icon: LightModeIcon,
-    label: "Light",
-  },
-  {
-    key: "s" as const,
-    optKey: "s_opt" as const,
-    minKey: "s_min" as const,
-    maxKey: "s_max" as const,
-    Icon: LandscapeIcon,
-    label: "Soil",
-  },
-  {
-    key: "m" as const,
-    optKey: "m_opt" as const,
-    minKey: "m_min" as const,
-    maxKey: "m_max" as const,
-    Icon: WaterDropIcon,
-    label: "Moisture",
-  },
-  {
-    key: "w" as const,
-    optKey: "w_opt" as const,
-    minKey: "w_min" as const,
-    maxKey: "w_max" as const,
-    Icon: AirIcon,
-    label: "Wind resistance",
-  },
-  {
-    key: "r" as const,
-    optKey: "r_opt" as const,
-    minKey: "r_min" as const,
-    maxKey: "r_max" as const,
-    Icon: BugReportIcon,
-    label: "Pest resistance",
-  },
-  {
-    key: "t" as const,
-    optKey: "t_opt" as const,
-    minKey: "t_min" as const,
-    maxKey: "t_max" as const,
-    Icon: ThermostatIcon,
-    label: "Temperature",
-  },
-  {
-    key: "f" as const,
-    optKey: "f_opt" as const,
-    minKey: "f_min" as const,
-    maxKey: "f_max" as const,
-    Icon: GrassIcon,
-    label: "Fertility",
-  },
-  {
-    key: "p" as const,
-    optKey: "p_opt" as const,
-    minKey: "p_min" as const,
-    maxKey: "p_max" as const,
-    Icon: GrainIcon,
-    label: "Porosity",
-  },
-  {
-    key: "a" as const,
-    optKey: "a_opt" as const,
-    minKey: "a_min" as const,
-    maxKey: "a_max" as const,
-    Icon: ScienceIcon,
-    label: "Acidity",
-  },
-];
 
 function getPipFills(value: number): (0 | 1 | 2)[] {
   const pips: (0 | 1 | 2)[] = [0, 0, 0, 0, 0];
@@ -208,8 +105,11 @@ export function PlantEnvPips({ plant, limits }: PlantEnvPipsProps) {
         }}
       >
         {ENV_CONFIG.map(({ key, optKey, minKey, maxKey, Icon, label }, index) => {
-          const opt = plant[optKey];
-          const value = optToScale(opt, limits[minKey], limits[maxKey]);
+          if (!optKey || !minKey || !maxKey) return null;
+          const opt = plant[optKey as keyof Plant] as number | null | undefined;
+          const gMin = String(limits[minKey as keyof GlobalLimits] ?? "");
+          const gMax = String(limits[maxKey as keyof GlobalLimits] ?? "");
+          const value = optToScale(opt, gMin, gMax);
           const fills = getPipFills(value);
           const color = ENV_COLORS[key] ?? theme.palette.game.variableColors[0];
           const showSpacerBefore = index === 5;
@@ -257,9 +157,7 @@ export function PlantEnvPips({ plant, limits }: PlantEnvPipsProps) {
                   const effectKey = EFFECT_KEY_MAP[key];
                   const delta = effectKey && plant.effects?.[effectKey];
                   if (delta === undefined || delta === null) return null;
-                  const blips = toHalfBlip(
-                    deltaToBlips(delta, key, limits[minKey], limits[maxKey])
-                  );
+                  const blips = toHalfBlip(deltaToBlips(delta, key, gMin, gMax));
                   const sign = blips > 0 ? "+" : "";
                   const invertedColor =
                     blips > 0 ? "error.main" : blips < 0 ? "success.main" : "text.secondary";
@@ -293,12 +191,8 @@ export function PlantEnvPips({ plant, limits }: PlantEnvPipsProps) {
                           justifyContent: "center",
                         }}
                       >
-                        {blips > 0 && (
-                          <EffectArrow direction="up" color={resolvedColor} />
-                        )}
-                        {blips < 0 && (
-                          <EffectArrow direction="down" color={resolvedColor} />
-                        )}
+                        {blips > 0 && <EffectArrow direction="up" color={resolvedColor} />}
+                        {blips < 0 && <EffectArrow direction="down" color={resolvedColor} />}
                       </Box>
                       <Typography
                         variant="body2"

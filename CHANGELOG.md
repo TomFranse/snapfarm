@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.1] - 2026-02-22
+
+### Added
+
+- **Shared env config constants**: Introduced `src/features/plants/constants/envConfig.ts` to centralize environment labels, icons, and colors used by plant/card variable displays.
+
+### Changed
+
+- **Game board layout sizing**: Updated card/hand/main-layout sizing to use responsive CSS variables and constrained viewport scrolling for more stable board composition.
+- **Drag start sensitivity**: Lowered dnd pointer activation distance from `8` to `2` for snappier card drags.
+- **Plant env pips refactor**: `PlantEnvPips` now imports shared env config and uses safer typed key access for limits/options.
+
 ## [0.22.0] - 2026-02-22
 
 ### Added

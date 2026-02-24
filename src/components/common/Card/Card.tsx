@@ -63,8 +63,9 @@ export interface CardProps extends Omit<MuiCardProps, "variant"> {
 }
 
 const baseSlotSx: SxProps<Theme> = {
-  width: CARD_DIMENSIONS.width,
-  height: CARD_DIMENSIONS.height,
+  width: "var(--card-size, 120px)",
+  maxWidth: "100%",
+  aspectRatio: "5 / 7",
   p: 1,
   display: "flex",
   flexDirection: "column",
