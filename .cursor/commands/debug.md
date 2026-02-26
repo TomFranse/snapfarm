@@ -193,6 +193,12 @@ When symptoms match known patterns, prioritize these hypotheses first:
 - Key question: "Was flushSync used to force immediate state updates inside a dnd-kit event handler (onDragStart/onDragEnd)?"
 - Debug approach: Revert flushSync; use normal async state updates. If perceived delay is unacceptable, optimize render tree or consider pre-mounting overlay instead.
 
+**Overflow Hidden Clips Child Content Extending Outside Bounds:**
+- Symptom: Popup, tooltip, or animated element that extends above/below its container is cropped or partially invisible. Often mistaken for z-index/stacking order issues.
+- Root cause: An ancestor has `overflow: hidden` (or `auto`/`scroll`), which clips any descendant content that extends outside the ancestor's border box.
+- Key question: "Does any ancestor in the component hierarchy have overflow other than visible?"
+- Debug approach: Inspect full DOM hierarchy from problematic element upward; check computed styles for overflow. Fix: Change ancestor to `overflow: visible`, add padding to create room, or use a Portal to render outside the clipping ancestor.
+
 **Add other patterns here as they're discovered.**
 
 ---

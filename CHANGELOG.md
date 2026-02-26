@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.1] - 2026-02-26
+
+### Fixed
+
+- **Score popup clipping on card placement**: HomePage grid container used `overflow: hidden`, which clipped the ScorePopup that animates above the slot. Changed to `overflow: visible` so the score displays fully when placing cards.
+
 ## [0.23.0] - 2026-02-24
 
 ### Added

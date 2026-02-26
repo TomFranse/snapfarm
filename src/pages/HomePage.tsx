@@ -31,7 +31,8 @@ function HomePageContent() {
         justifyItems: "center",
         alignItems: "center",
         rowGap: "var(--game-gap, 16px)",
-        overflow: "hidden",
+        // overflow: visible so ScorePopup (top:-8, animates -20px) isn't clipped
+        overflow: "visible",
         "--game-gap": theme.layout.cardGame.gameGap.xs,
         "--card-min": theme.layout.cardGame.cardMin.xs,
         "--card-max": theme.layout.cardGame.cardMax.xs,
