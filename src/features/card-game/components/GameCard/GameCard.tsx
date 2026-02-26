@@ -114,6 +114,7 @@ export function GameCard({
   // Only the overlay follows the cursor.
   const style = {
     opacity: isDragging ? 0.5 : 1,
+    transition: "opacity 120ms ease-out, transform 120ms cubic-bezier(0.34, 1.56, 0.64, 1)",
     ...(transform && !isDragging ? { transform: CSS.Translate.toString(transform) } : {}),
   };
 

@@ -14,6 +14,13 @@ import { AppDndContext } from "@/shared/context/DndContext";
 import { GameCard } from "@features/card-game/components/GameCard/GameCard";
 import { parseSlotIndex } from "@features/card-game/services/dndSlotIds";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import type { DropAnimationFunctionArguments } from "@dnd-kit/core/dist/components/DragOverlay/hooks";
+
+const QUICK_BOUNCE_EASING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
+const SETTLE_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
+const DROP_ANIMATION_DURATION_MS = 240;
+const SETTLE_OVERSHOOT_SCALE = 1.03;
+const SETTLE_SHRINK_SCALE = 0.985;
 
 export function CardGameDndProvider({ children }: { children: ReactNode }) {
   const { hand, board, playCard } = useGameContext();
@@ -23,12 +30,6 @@ export function CardGameDndProvider({ children }: { children: ReactNode }) {
   const handleDragStart = (event: DragStartEvent) => {
     const activeCardId = String(event.active.id);
     setActiveId(activeCardId);
-    const activeNode = document.querySelector<HTMLElement>(`[data-card-id="${activeCardId}"]`);
-    if (activeNode) {
-      const rectWidth = activeNode.getBoundingClientRect().width;
-      setActiveCardWidth(rectWidth > 0 ? rectWidth : null);
-      return;
-    }
     const initialRect = event.active.rect.current.initial ?? event.active.rect.current.translated;
     setActiveCardWidth(initialRect?.width ?? null);
   };
@@ -43,7 +44,7 @@ export function CardGameDndProvider({ children }: { children: ReactNode }) {
     setActiveCardWidth(null);
   };
 
-  const activeCard = activeId ? hand.find((c) => c.id === activeId) : null;
+  const activeCard = activeId ? (hand.find((c) => c.id === activeId) ?? null) : null;
 
   return (
     <AppDndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -51,14 +52,59 @@ export function CardGameDndProvider({ children }: { children: ReactNode }) {
         {children}
         <DragOverlay
           adjustScale={false}
-          dropAnimation={null}
-          style={{ position: "fixed", zIndex: 1300 }}
+          dropAnimation={async ({ dragOverlay, transform }: DropAnimationFunctionArguments) => {
+            const element = dragOverlay.node;
+            const translateX = transform.x;
+            const translateY = transform.y;
+
+            const animation = (
+              element as unknown as {
+                animate: (
+                  keyframes: Array<Record<string, unknown>>,
+                  options: Record<string, unknown>
+                ) => { finished: Promise<unknown> };
+              }
+            ).animate(
+              [
+                { transform: "translate3d(0px, 0px, 0) scale(1)" },
+                {
+                  offset: 0.72,
+                  transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${SETTLE_OVERSHOOT_SCALE})`,
+                },
+                {
+                  offset: 0.9,
+                  transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${SETTLE_SHRINK_SCALE})`,
+                },
+                { transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(1)` },
+              ],
+              {
+                duration: DROP_ANIMATION_DURATION_MS,
+                easing: SETTLE_EASING,
+                fill: "forwards",
+              }
+            );
+
+            try {
+              await animation.finished;
+            } catch {
+              // Ignore cancellations when a new drag starts before settle completes.
+            }
+          }}
+          style={{ position: "fixed", zIndex: 1300, pointerEvents: "none" }}
         >
           {activeCard ? (
             <Box
               sx={{
                 cursor: "grabbing",
                 display: "inline-block",
+                pointerEvents: "none",
+                transformOrigin: "center center",
+                animation: `cardPickupBounce 150ms ${QUICK_BOUNCE_EASING}`,
+                "@keyframes cardPickupBounce": {
+                  "0%": { transform: "scale(1)" },
+                  "55%": { transform: "scale(1.07)" },
+                  "100%": { transform: "scale(1.02)" },
+                },
                 ...(activeCardWidth !== null ? { "--card-size": `${activeCardWidth}px` } : {}),
               }}
             >

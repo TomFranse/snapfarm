@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.2] - 2026-02-26
+
+### Fixed
+
+- **DnD self-drop interaction freeze**: Prevented drag overlay lockups after dropping a hand card on itself by making drop animation translation null-safe and disabling overlay pointer events so ghost overlays can never intercept follow-up drags.
+
 ## [0.23.1] - 2026-02-26
 
 ### Fixed
