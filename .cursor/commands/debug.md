@@ -187,6 +187,12 @@ When symptoms match known patterns, prioritize these hypotheses first:
 - Key question: "Does the test work on another machine or after clearing Vite cache (`rm -rf node_modules/.vite`)?"
 - Debug approach: Add `server.deps.inline: ["@mui/material", "@mui/icons-material"]` to `vitest.config.ts` to force pre-bundling. Also add `fallbackCJS: true` for ESM/CJS compatibility. Clear Vite cache if issue persists. Check Node/pnpm versions if working on other machines.
 
+**flushSync in dnd-kit Event Handlers Breaks Drag:**
+- Symptom: After adding flushSync around setState in onDragStart, dragging stops working—overlay never mounts or doesn't follow cursor.
+- Root cause: flushSync forces a synchronous React commit during dnd-kit's drag initialization, corrupting dnd-kit's internal state or interfering with the drag session setup.
+- Key question: "Was flushSync used to force immediate state updates inside a dnd-kit event handler (onDragStart/onDragEnd)?"
+- Debug approach: Revert flushSync; use normal async state updates. If perceived delay is unacceptable, optimize render tree or consider pre-mounting overlay instead.
+
 **Add other patterns here as they're discovered.**
 
 ---
